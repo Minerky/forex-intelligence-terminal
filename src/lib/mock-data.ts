@@ -21,16 +21,16 @@ import type {
 
 export const BASE_PRICES: Record<string, number> = {
   'XAU/USD': 2938.50,
-  'EUR/USD': 1.0850,
-  'GBP/USD': 1.2650,
-  'USD/JPY': 149.50,
-  'USD/CHF': 0.8780,
-  'AUD/USD': 0.6520,
-  'USD/CAD': 1.3650,
-  'NZD/USD': 0.6080,
-  'EUR/GBP': 0.8575,
-  'EUR/JPY': 162.20,
-  'GBP/JPY': 189.10,
+  'EUR/USD': 1.1682,
+  'GBP/USD': 1.3637,
+  'USD/JPY': 158.95,
+  'USD/CHF': 0.8009,
+  'AUD/USD': 0.7164,
+  'USD/CAD': 1.3763,
+  'NZD/USD': 0.5979,
+  'EUR/GBP': 0.8566,
+  'EUR/JPY': 185.69,
+  'GBP/JPY': 216.76,
 };
 
 // Pip size per pair (used for spread / simulation scale)
@@ -78,16 +78,16 @@ interface PairSeed {
 
 const PAIR_SEEDS: PairSeed[] = [
   { symbol: 'XAU/USD', base: 'XAU', quote: 'USD', price: 2938.50, rsi: 65, trend: 'Bullish', sentiment: 'Very Bullish' },
-  { symbol: 'EUR/USD', base: 'EUR', quote: 'USD', price: 1.0850, rsi: 55, trend: 'Bullish', sentiment: 'Bullish' },
-  { symbol: 'GBP/USD', base: 'GBP', quote: 'USD', price: 1.2650, rsi: 58, trend: 'Bullish', sentiment: 'Bullish' },
-  { symbol: 'USD/JPY', base: 'USD', quote: 'JPY', price: 149.50, rsi: 62, trend: 'Bullish', sentiment: 'Neutral' },
-  { symbol: 'USD/CHF', base: 'USD', quote: 'CHF', price: 0.8780, rsi: 48, trend: 'Bearish', sentiment: 'Bearish' },
-  { symbol: 'AUD/USD', base: 'AUD', quote: 'USD', price: 0.6520, rsi: 44, trend: 'Bearish', sentiment: 'Bearish' },
-  { symbol: 'USD/CAD', base: 'USD', quote: 'CAD', price: 1.3650, rsi: 52, trend: 'Neutral', sentiment: 'Neutral' },
-  { symbol: 'NZD/USD', base: 'NZD', quote: 'USD', price: 0.6080, rsi: 41, trend: 'Bearish', sentiment: 'Very Bearish' },
-  { symbol: 'EUR/GBP', base: 'EUR', quote: 'GBP', price: 0.8575, rsi: 50, trend: 'Neutral', sentiment: 'Neutral' },
-  { symbol: 'EUR/JPY', base: 'EUR', quote: 'JPY', price: 162.20, rsi: 60, trend: 'Bullish', sentiment: 'Bullish' },
-  { symbol: 'GBP/JPY', base: 'GBP', quote: 'JPY', price: 189.10, rsi: 63, trend: 'Bullish', sentiment: 'Very Bullish' },
+  { symbol: 'EUR/USD', base: 'EUR', quote: 'USD', price: 1.1682, rsi: 55, trend: 'Bullish', sentiment: 'Bullish' },
+  { symbol: 'GBP/USD', base: 'GBP', quote: 'USD', price: 1.3637, rsi: 58, trend: 'Bullish', sentiment: 'Bullish' },
+  { symbol: 'USD/JPY', base: 'USD', quote: 'JPY', price: 158.95, rsi: 62, trend: 'Bullish', sentiment: 'Neutral' },
+  { symbol: 'USD/CHF', base: 'USD', quote: 'CHF', price: 0.8009, rsi: 48, trend: 'Bearish', sentiment: 'Bearish' },
+  { symbol: 'AUD/USD', base: 'AUD', quote: 'USD', price: 0.7164, rsi: 44, trend: 'Bearish', sentiment: 'Bearish' },
+  { symbol: 'USD/CAD', base: 'USD', quote: 'CAD', price: 1.3763, rsi: 52, trend: 'Neutral', sentiment: 'Neutral' },
+  { symbol: 'NZD/USD', base: 'NZD', quote: 'USD', price: 0.5979, rsi: 41, trend: 'Bearish', sentiment: 'Very Bearish' },
+  { symbol: 'EUR/GBP', base: 'EUR', quote: 'GBP', price: 0.8566, rsi: 50, trend: 'Neutral', sentiment: 'Neutral' },
+  { symbol: 'EUR/JPY', base: 'EUR', quote: 'JPY', price: 185.69, rsi: 60, trend: 'Bullish', sentiment: 'Bullish' },
+  { symbol: 'GBP/JPY', base: 'GBP', quote: 'JPY', price: 216.76, rsi: 63, trend: 'Bullish', sentiment: 'Very Bullish' },
 ];
 
 function buildPair(s: PairSeed): CurrencyPair {
