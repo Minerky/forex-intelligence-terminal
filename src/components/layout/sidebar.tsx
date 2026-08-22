@@ -29,6 +29,7 @@ import {
   AlertTriangle,
   Timer,
   Boxes,
+  Sparkles,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -55,6 +56,7 @@ const NAV_SECTIONS = [
   {
     label: 'AI & Sinyal',
     items: [
+      { href: '/action-plan', label: 'Rencana Harian AI', icon: Sparkles },
       { href: '/time-signal', label: 'Sinyal Waktu & TP/CL', icon: Timer },
       { href: '/prediction', label: 'Prediksi AI', icon: Brain },
       { href: '/signals', label: 'Sinyal', icon: Zap },

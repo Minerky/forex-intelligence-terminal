@@ -28,6 +28,7 @@ import {
   RefreshCw,
   Timer,
   Boxes,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -74,6 +75,7 @@ export function CommandPalette() {
     { id: 'scanner-bullish', icon: Search, label: '/scanner bullish', description: 'Pindai setup bullish', action: () => nav('/scanner'), keywords: 'scanner pemindai bullish scan' },
     { id: 'backtest-eurusd', icon: FlaskConical, label: '/backtest EURUSD', description: 'Uji balik strategi EUR/USD', action: () => nav('/backtest', 'EUR/USD'), keywords: 'backtest uji balik eurusd strategi' },
     // Navigation
+    { id: 'nav-action-plan', icon: Sparkles, label: 'Rencana Harian AI', description: 'Panduan trading 3 langkah mudah untuk pemula', action: () => nav('/action-plan'), keywords: 'action plan rencana harian ai pemula mudah uang dingin telegram' },
     { id: 'nav-time-signal', icon: Timer, label: 'Sinyal Waktu & TP/CL', description: 'Waktu hitung mundur & sinyal entry/sell', action: () => nav('/time-signal'), keywords: 'waktu timer countdown sinyal entry sell tp cl cut loss' },
     { id: 'nav-dashboard', icon: LayoutDashboard, label: 'Dasbor', description: 'Buka Dasbor utama', action: () => nav('/dashboard'), keywords: 'dashboard dasbor beranda home' },
     { id: 'nav-market', icon: TrendingUp, label: 'Pasar', description: 'Buka tampilan Pasar', action: () => nav('/market'), keywords: 'market pasar pairs live' },
