@@ -310,7 +310,6 @@ export default function ActionPlanPage() {
           </div>
         )}
       </div>
-      </div>
 
       {/* ----------------------------------------------------------------- */}
       {/* WORST-CASE SCENARIO RISK VISUALIZER                               */}
