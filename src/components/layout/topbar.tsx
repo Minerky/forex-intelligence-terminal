@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useForexStore } from '@/lib/store';
-import { Menu, Command } from 'lucide-react';
+import { Menu, Command, Sparkles, Sliders } from 'lucide-react';
 
 // Market sessions: hours in UTC
 const SESSIONS = [
@@ -37,6 +37,8 @@ export function Topbar() {
   const toggleCommandPalette = useForexStore((s) => s.toggleCommandPalette);
   const pairs = useForexStore((s) => s.pairs);
   const dataStatus = useForexStore((s) => s.dataStatus);
+  const isBeginnerMode = useForexStore((s) => s.isBeginnerMode);
+  const toggleBeginnerMode = useForexStore((s) => s.toggleBeginnerMode);
 
   const [utcTime, setUtcTime] = useState(() => new Date());
 
@@ -129,6 +131,29 @@ export function Topbar() {
             {marketOpen ? 'Pasar Buka' : 'Pasar Tutup (Akhir Pekan)'}
           </span>
         </span>
+
+        {/* Mode Toggle: Pemula vs Pro */}
+        <button
+          onClick={toggleBeginnerMode}
+          className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition shadow-sm ${
+            isBeginnerMode
+              ? 'bg-emerald-500 text-zinc-950 hover:bg-emerald-400'
+              : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+          }`}
+          title={isBeginnerMode ? "Klik untuk ganti ke Mode Pro Teknis" : "Klik untuk ganti ke Mode Pemula Simpel"}
+        >
+          {isBeginnerMode ? (
+            <>
+              <Sparkles size={13} className="text-zinc-950 animate-bounce" />
+              <span>Mode Pemula</span>
+            </>
+          ) : (
+            <>
+              <Sliders size={13} className="text-zinc-400" />
+              <span>Mode Pro</span>
+            </>
+          )}
+        </button>
 
         {/* Command palette button */}
         <button

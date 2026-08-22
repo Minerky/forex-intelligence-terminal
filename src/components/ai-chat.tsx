@@ -35,6 +35,7 @@ export function AiChat() {
   const open = useForexStore((s) => s.aiChatOpen);
   const toggle = useForexStore((s) => s.toggleAiChat);
   const pairs = useForexStore((s) => s.pairs);
+  const isBeginnerMode = useForexStore((s) => s.isBeginnerMode);
   const currencyStrength = useForexStore((s) => s.currencyStrength);
   const news = useForexStore((s) => s.news);
   const predictions = useForexStore((s) => s.predictions);
@@ -53,6 +54,16 @@ export function AiChat() {
     (msg: string): string => {
       const lower = msg.toLowerCase();
       const pair = findPair(msg);
+
+      // Beginner questions
+      if (lower.includes('cent') || lower.includes('modal') || lower.includes('pemula') || lower.includes('lot')) {
+        return [
+          `**Panduan Pemula & Akun Cent:**`,
+          `1. **Akun Cent:** Modal $10 USD menjadi 1.000 USC. Sangat aman dari risiko bangkrut.`,
+          `2. **Rekomendasi Lot:** Mulai dengan 0.01 lot cent. Jika kena Stop Loss 30 poin, Anda hanya rugi sekitar Rp 1.500 - Rp 5.000.`,
+          `3. **Disiplin:** Selalu pasang Stop Loss (SL) dan Take Profit (TP) setiap kali membuka posisi di MetaTrader.`,
+        ].join('\n');
+      }
 
       // Pair analysis
       if (pair) {

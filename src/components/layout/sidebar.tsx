@@ -87,6 +87,31 @@ export function Sidebar() {
   const pathname = usePathname();
   const sidebarOpen = useForexStore((s) => s.sidebarOpen);
   const toggleSidebar = useForexStore((s) => s.toggleSidebar);
+  const isBeginnerMode = useForexStore((s) => s.isBeginnerMode);
+
+  // Simplified navigation for beginner mode
+  const BEGINNER_SECTIONS = [
+    {
+      label: 'Menu Utama Pemula',
+      items: [
+        { href: '/dashboard', label: 'Dasbor Panduan', icon: LayoutDashboard },
+        { href: '/action-plan', label: 'Rencana Harian AI ⭐', icon: Sparkles },
+        { href: '/time-signal', label: 'Sinyal TP/CL Siap Copy', icon: Timer },
+        { href: '/risk', label: 'Kalkulator Lot & Cent', icon: ShieldCheck },
+        { href: '/calendar', label: 'Jadwal Bahaya Berita', icon: Calendar },
+      ],
+    },
+    {
+      label: 'Belajar & Riwayat',
+      items: [
+        { href: '/journal', label: 'Buku Catatan Trading', icon: NotebookPen },
+        { href: '/news', label: 'Kabar Pasar Santai', icon: Newspaper },
+        { href: '/settings', label: 'Pengaturan & Akun', icon: Settings },
+      ],
+    },
+  ];
+
+  const sectionsToRender = isBeginnerMode ? BEGINNER_SECTIONS : NAV_SECTIONS;
 
   return (
     <>
@@ -122,7 +147,7 @@ export function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-2">
-          {NAV_SECTIONS.map((section) => (
+          {sectionsToRender.map((section) => (
             <div key={section.label} className="mb-1">
               <span className={`block px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-600 ${!sidebarOpen && 'lg:hidden'}`}>
                 {section.label}

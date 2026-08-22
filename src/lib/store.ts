@@ -52,6 +52,11 @@ interface ForexStore {
   aiChatOpen: boolean;
   toggleAiChat: () => void;
 
+  // Beginner / Awam Friendly Mode
+  isBeginnerMode: boolean;
+  toggleBeginnerMode: () => void;
+  setBeginnerMode: (val: boolean) => void;
+
   // Data status
   dataStatus: 'live' | 'delayed' | 'offline';
   dataSourceName: string;
@@ -216,6 +221,10 @@ export const useForexStore = create<ForexStore>((set, get) => ({
   toggleCommandPalette: () => set((s) => ({ commandPaletteOpen: !s.commandPaletteOpen })),
   aiChatOpen: false,
   toggleAiChat: () => set((s) => ({ aiChatOpen: !s.aiChatOpen })),
+
+  isBeginnerMode: true, // Default to true so beginners get friendly experience immediately
+  toggleBeginnerMode: () => set((s) => ({ isBeginnerMode: !s.isBeginnerMode })),
+  setBeginnerMode: (val) => set({ isBeginnerMode: val }),
 
   dataStatus: 'live',
   dataSourceName: 'Live Market Feed',

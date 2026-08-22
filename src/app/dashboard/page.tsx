@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useForexStore } from '@/lib/store';
+import { BeginnerDashboard } from '@/components/beginner-dashboard';
 import {
   TrendingUp,
   TrendingDown,
@@ -73,6 +74,7 @@ function MiniTrend({ trend, changePercent }: { trend: string; changePercent: num
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
+  const isBeginnerMode = useForexStore((s) => s.isBeginnerMode);
   const pairs = useForexStore((s) => s.pairs);
   const updatePrices = useForexStore((s) => s.updatePrices);
   const signals = useForexStore((s) => s.signals);
@@ -116,6 +118,10 @@ export default function DashboardPage() {
   const avgSentiment =
     majorPairs.reduce((sum, p) => sum + (sentimentMap[p.sentiment] ?? 0), 0) / (majorPairs.length || 1);
   const marketSentiment = avgSentiment >= 0.3 ? 'Risk On' : avgSentiment <= -0.3 ? 'Risk Off' : 'Mixed';
+
+  if (isBeginnerMode) {
+    return <BeginnerDashboard />;
+  }
 
   return (
     <div className="space-y-6">
