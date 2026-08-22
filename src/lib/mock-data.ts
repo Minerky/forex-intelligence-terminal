@@ -473,67 +473,104 @@ export function generatePrediction(pair: string, pairData: CurrencyPair): Predic
   const d = decimalsFor(pair);
   const pip = pipSize(pair);
 
-  // Rule-based direction from indicators
-  let bullishScore = 0;
-  let bearishScore = 0;
+  // Strict Institutional Confluence Scoring
+  let bullConfluence = 0;
+  let bearConfluence = 0;
+  const reasons: string[] = [];
+  const riskFactors: string[] = [];
 
-  if (pairData.rsi > 55) bullishScore += 2;
-  if (pairData.rsi > 65) bullishScore += 1;
-  if (pairData.rsi < 45) bearishScore += 2;
-  if (pairData.rsi < 35) bearishScore += 1;
+  // 1. Trend Filter
+  if (pairData.trend === 'Bullish') {
+    bullConfluence += 30;
+    reasons.push('Tren pasar dominan terkonfirmasi Bullish');
+  } else if (pairData.trend === 'Bearish') {
+    bearConfluence += 30;
+    reasons.push('Tren pasar dominan terkonfirmasi Bearish');
+  } else {
+    riskFactors.push('Tren pasar konsolidasi / sideways (risiko choppy market)');
+  }
 
-  if (pairData.macd.histogram > 0) bullishScore += 2;
-  if (pairData.macd.histogram < 0) bearishScore += 2;
+  // 2. RSI Healthy Momentum Zone (Avoid buying at peak >70 or selling at bottom <30)
+  if (pairData.rsi >= 52 && pairData.rsi <= 68) {
+    bullConfluence += 25;
+    reasons.push(`RSI (${pairData.rsi}) berada di zona momentum bullish sehat (bukan overbought)`);
+  } else if (pairData.rsi >= 32 && pairData.rsi <= 48) {
+    bearConfluence += 25;
+    reasons.push(`RSI (${pairData.rsi}) berada di zona momentum bearish sehat (bukan oversold)`);
+  } else if (pairData.rsi > 70) {
+    riskFactors.push(`RSI (${pairData.rsi}) Overbought ekstrem — dilarang BUY karena rawan koreksi instan`);
+  } else if (pairData.rsi < 30) {
+    riskFactors.push(`RSI (${pairData.rsi}) Oversold ekstrem — dilarang SELL karena rawan technical bounce`);
+  }
 
-  if (pairData.trend === 'Bullish') bullishScore += 3;
-  if (pairData.trend === 'Bearish') bearishScore += 3;
+  // 3. MACD Histogram Confirmation
+  if (pairData.macd.histogram > 0) {
+    bullConfluence += 25;
+    reasons.push('Histogram MACD di atas nol mengonfirmasi ekspansi pembeli');
+  } else if (pairData.macd.histogram < 0) {
+    bearConfluence += 25;
+    reasons.push('Histogram MACD di bawah nol mengonfirmasi ekspansi penjual');
+  }
 
-  if (pairData.price > pairData.open) bullishScore += 1;
-  if (pairData.price < pairData.open) bearishScore += 1;
+  // 4. Intraday Price Position vs Open
+  if (pairData.price > pairData.open) {
+    bullConfluence += 20;
+    reasons.push('Harga berjalan di atas level Open harian');
+  } else if (pairData.price < pairData.open) {
+    bearConfluence += 20;
+    reasons.push('Harga berjalan di bawah level Open harian');
+  }
 
-  const total = bullishScore + bearishScore || 1;
-  const bullPct = roundTo((bullishScore / total) * 100, 0);
-  const bearPct = roundTo((bearishScore / total) * 100, 0);
+  // Strict Threshold: Only issue BUY/SELL if Confluence >= 75%, otherwise ALWAYS WAIT
+  let direction: Prediction['direction'] = 'Neutral';
+  let verdict: Prediction['verdict'] = 'WAIT';
+  let confidence = 50;
+
+  if (bullConfluence >= 75 && pairData.rsi <= 70) {
+    direction = 'Bullish';
+    verdict = 'BUY';
+    confidence = Math.min(94, bullConfluence + Math.round(Math.random() * 4));
+  } else if (bearConfluence >= 75 && pairData.rsi >= 30) {
+    direction = 'Bearish';
+    verdict = 'SELL';
+    confidence = Math.min(94, bearConfluence + Math.round(Math.random() * 4));
+  } else {
+    direction = 'Neutral';
+    verdict = 'WAIT';
+    confidence = 45;
+    reasons.push('Konfluensi indikator belum mencapai syarat 80% — Mode perlindungan modal WAIT aktif.');
+  }
+
+  const bullPct = verdict === 'BUY' ? confidence : verdict === 'SELL' ? 100 - confidence : 33;
+  const bearPct = verdict === 'SELL' ? confidence : verdict === 'BUY' ? 100 - confidence : 33;
   const neutPct = Math.max(0, 100 - bullPct - bearPct);
 
-  let direction: Prediction['direction'];
-  let verdict: Prediction['verdict'];
-  if (bullishScore > bearishScore + 2) { direction = 'Bullish'; verdict = 'BUY'; }
-  else if (bearishScore > bullishScore + 2) { direction = 'Bearish'; verdict = 'SELL'; }
-  else { direction = 'Neutral'; verdict = 'WAIT'; }
+  // Exact ATR based risk-reward (Minimum 1:2 Ratio)
+  const isGold = pair.includes('XAU');
+  const atrVal = pairData.atr || (isGold ? 15.0 : pair.includes('JPY') ? 0.8 : 0.006);
+  const support = roundTo(pairData.low - atrVal * 0.5, d);
+  const resistance = roundTo(pairData.high + atrVal * 0.5, d);
 
-  const atrPips = pairData.atr / pip;
-  const support = roundTo(pairData.low - pairData.atr * 0.5, d);
-  const resistance = roundTo(pairData.high + pairData.atr * 0.5, d);
-  const target = direction === 'Bullish'
-    ? roundTo(pairData.price + pairData.atr * 1.5, d)
-    : direction === 'Bearish'
-      ? roundTo(pairData.price - pairData.atr * 1.5, d)
-      : pairData.price;
-  const invalidation = direction === 'Bullish'
-    ? roundTo(pairData.price - pairData.atr * 0.8, d)
-    : direction === 'Bearish'
-      ? roundTo(pairData.price + pairData.atr * 0.8, d)
-      : pairData.price;
-  const riskReward = roundTo(Math.abs(target - pairData.price) / (Math.abs(invalidation - pairData.price) || 1), 2);
-  const confidence = roundTo(clamp(40 + Math.abs(bullishScore - bearishScore) * 6 + rand(-5, 5), 25, 92), 0);
+  const stopDist = atrVal * 1.0;
+  const targetDist = atrVal * 2.2; // 1:2.2 R:R Ratio
 
-  const reasons: string[] = [];
-  if (pairData.rsi > 55) reasons.push(`RSI at ${pairData.rsi} favors bulls`);
-  if (pairData.rsi < 45) reasons.push(`RSI at ${pairData.rsi} favors bears`);
-  if (pairData.macd.histogram > 0) reasons.push('MACD histogram positive');
-  if (pairData.macd.histogram < 0) reasons.push('MACD histogram negative');
-  if (pairData.trend !== 'Neutral') reasons.push(`${pairData.trend} trend on D1`);
-  if (pairData.price > pairData.open) reasons.push('Price above daily open');
-  if (pairData.price < pairData.open) reasons.push('Price below daily open');
-  if (reasons.length === 0) reasons.push('Mixed signals — no strong directional bias');
+  const target = verdict === 'BUY'
+    ? roundTo(pairData.price + targetDist, d)
+    : verdict === 'SELL'
+      ? roundTo(pairData.price - targetDist, d)
+      : roundTo(pairData.price + targetDist, d);
 
-  const riskFactors = [
-    `ATR of ${roundTo(atrPips, 0)} pips indicates ${pairData.volatility.toLowerCase()} volatility`,
-    'Upcoming economic events may override technicals',
-  ];
-  if (pairData.rsi > 70) riskFactors.push('RSI in overbought territory — reversal risk');
-  if (pairData.rsi < 30) riskFactors.push('RSI in oversold territory — bounce risk');
+  const invalidation = verdict === 'BUY'
+    ? roundTo(pairData.price - stopDist, d)
+    : verdict === 'SELL'
+      ? roundTo(pairData.price + stopDist, d)
+      : roundTo(pairData.price - stopDist, d);
+
+  const riskReward = roundTo(targetDist / (stopDist || 1), 2);
+
+  const atrPips = atrVal / pip;
+  riskFactors.push(`Jarak toleransi Cut Loss diatur pada 1x ATR (${roundTo(atrPips, 0)} pips)`);
+  riskFactors.push('Waspadai lonjakan spread saat peralihan sesi atau rilis berita ekonomi berdampak tinggi');
 
   const expectedVol: Prediction['expectedVolatility'] = pairData.volatility;
   const marketRegime = pairData.volatility === 'High' ? 'Trending-Volatile' : pairData.trend === 'Neutral' ? 'Range-Bound' : 'Trending-Calm';
@@ -551,12 +588,12 @@ export function generatePrediction(pair: string, pairData: CurrencyPair): Predic
     target,
     invalidation,
     riskReward,
-    timeHorizon: '4H - 1D',
+    timeHorizon: '1H - 4H',
     reasons,
     riskFactors,
     verdict,
     timestamp: Date.now(),
-    modelVersion: 'FIT-v3.2.1',
+    modelVersion: 'FIT-Confluence-v4.0',
     marketRegime,
   };
 }
@@ -565,29 +602,16 @@ export function generateSignals(pairsList?: CurrencyPair[]): Signal[] {
   const source = pairsList && pairsList.length > 0 ? pairsList : CURRENCY_PAIRS;
   return source.slice(0, 7).map((p) => {
     const prediction = generatePrediction(p.symbol, p);
-    const techScore = roundTo(clamp(50 + (p.rsi - 50) * 0.8 + (p.macd.histogram > 0 ? 10 : -10), 10, 95), 0);
-    const fundScore = roundTo(rand(35, 75), 0);
-    const sentScore = roundTo(
-      p.sentiment === 'Very Bullish' ? rand(75, 90) :
-      p.sentiment === 'Bullish' ? rand(60, 78) :
-      p.sentiment === 'Bearish' ? rand(25, 42) :
-      p.sentiment === 'Very Bearish' ? rand(10, 28) : rand(40, 60),
-      0,
-    );
-    const mktStructScore = roundTo(rand(40, 75), 0);
-    const volScore = roundTo(p.volatility === 'High' ? rand(60, 85) : p.volatility === 'Medium' ? rand(40, 65) : rand(25, 50), 0);
-    const newsScr = roundTo(rand(30, 70), 0);
-    const total = roundTo((techScore + fundScore + sentScore + mktStructScore + volScore + newsScr) / 6, 0);
+    const techScore = prediction.verdict === 'BUY' || prediction.verdict === 'SELL' ? prediction.confidence : 45;
+    const fundScore = roundTo(rand(45, 75), 0);
+    const sentScore = prediction.verdict === 'BUY' ? 82 : prediction.verdict === 'SELL' ? 24 : 50;
+    const mktStructScore = roundTo(rand(60, 85), 0);
+    const volScore = p.volatility === 'High' ? 75 : 55;
+    const newsScr = roundTo(rand(40, 70), 0);
+    const total = roundTo((techScore * 0.35 + fundScore * 0.2 + sentScore * 0.15 + mktStructScore * 0.15 + volScore * 0.1 + newsScr * 0.05), 0);
 
     const d = decimalsFor(p.symbol);
-    const pip = pipSize(p.symbol);
     const entry = p.price;
-    const isBuy = prediction.verdict === 'BUY';
-    const stopDist = p.atr * rand(0.6, 1.0);
-    const tpDist = p.atr * rand(1.2, 2.5);
-    const stopLoss = roundTo(isBuy ? entry - stopDist : entry + stopDist, d);
-    const takeProfit = roundTo(isBuy ? entry + tpDist : entry - tpDist, d);
-    const rr = roundTo(tpDist / (stopDist || 1), 2);
 
     return {
       id: `sig-${p.symbol.replace('/', '')}`,
@@ -602,9 +626,9 @@ export function generateSignals(pairsList?: CurrencyPair[]): Signal[] {
       totalScore: total,
       confidence: prediction.confidence,
       entry: roundTo(entry, d),
-      stopLoss,
-      takeProfit,
-      riskReward: rr,
+      stopLoss: prediction.invalidation,
+      takeProfit: prediction.target,
+      riskReward: prediction.riskReward,
       timestamp: Date.now(),
       reasoning: prediction.reasons.join('. ') + '.',
     };
