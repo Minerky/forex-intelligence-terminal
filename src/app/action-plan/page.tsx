@@ -74,45 +74,30 @@ export default function ActionPlanPage() {
     setTimeout(() => setCopiedId(null), 2000);
   }
 
-  // Send to Telegram handler
+  // Send to Telegram handler (Single User or Channel Broadcast)
   async function handleSendTelegram(s: typeof signals[0]) {
-    if (!telegramToken.trim() || !telegramChatId.trim()) {
-      setTelegramStatus({
-        msg: '⚠️ Masukkan Bot Token & Chat ID Telegram di formulir bawah terlebih dahulu.',
-        success: false,
-      });
-      return;
-    }
-
     setTelegramSending(true);
     setTelegramStatus(null);
 
-    const message = `🤖 <b>SINYAL TRADING AI DISPATCHER</b>\n\n` +
-      `<b>Instrumen:</b> <code>${s.pair}</code>\n` +
-      `<b>Tindakan:</b> <b>${s.direction === 'BUY' ? '🟢 BUY' : '🔴 SELL'}</b>\n` +
-      `<b>Harga Masuk (Entry):</b> <code>${s.entry}</code>\n` +
-      `<b>Target Profit (TP):</b> <code>${s.takeProfit}</code>\n` +
-      `<b>Batas Risiko (Cut Loss):</b> <code>${s.stopLoss}</code>\n` +
-      `<b>Rekomendasi Lot:</b> <code>0.01 Lot</code>\n` +
-      `<b>Tingkat Keyakinan AI:</b> <b>${s.confidence}%</b>\n\n` +
-      `<i>Analisis: ${s.reasoning}</i>\n` +
-      `<i>Gunakan manajemen risiko disiplin 1% per trade.</i>`;
-
     try {
+      const payload: Record<string, any> = {
+        type: 'SIGNAL_BROADCAST',
+        signal: s,
+      };
+
+      if (telegramToken.trim()) payload.botToken = telegramToken.trim();
+      if (telegramChatId.trim()) payload.chatId = telegramChatId.trim();
+
       const res = await fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          botToken: telegramToken,
-          chatId: telegramChatId,
-          message,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) {
-        setTelegramStatus({ msg: '✓ Sinyal berhasil dikirim ke aplikasi Telegram HP Anda!', success: true });
-        localStorage.setItem('fit_tg_token', telegramToken);
-        localStorage.setItem('fit_tg_chat_id', telegramChatId);
+        setTelegramStatus({ msg: '✓ Sinyal berhasil disiarkan ke Telegram / Channel!', success: true });
+        if (telegramToken) localStorage.setItem('fit_tg_token', telegramToken);
+        if (telegramChatId) localStorage.setItem('fit_tg_chat_id', telegramChatId);
       } else {
         setTelegramStatus({ msg: `❌ Gagal: ${data.error}`, success: false });
       }

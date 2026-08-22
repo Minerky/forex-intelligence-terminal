@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "autobot": "node scripts/telegram-autobot.mjs",
     "lint": "eslint"
   },
   "dependencies": {

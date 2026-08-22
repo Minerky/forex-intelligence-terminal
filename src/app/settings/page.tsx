@@ -12,6 +12,7 @@ import {
   Moon,
   Sun,
   Radio,
+  Send,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -297,6 +298,37 @@ export default function SettingsPage() {
         <Row label="Suara Notifikasi Audio">
           <Toggle checked={settings.soundNotifications} onChange={(v) => update({ soundNotifications: v })} />
         </Row>
+      </Section>
+
+      {/* ----------------------------------------------------------------- */}
+      {/* Telegram Channel & Group Bot Broadcast                             */}
+      {/* ----------------------------------------------------------------- */}
+      <Section title="Bot Telegram Komunitas & Channel (Zero-DB Broadcast)" icon={Send}>
+        <div className="space-y-3 text-xs leading-relaxed text-zinc-400">
+          <p>
+            Bot akan otomatis menyiarkan sinyal AI dan merespons perintah user (<code>/gold</code>, <code>/signals</code>, <code>/market</code>) tanpa memerlukan database.
+          </p>
+
+          <div className="rounded-lg bg-zinc-950 p-3.5 border border-zinc-800 space-y-3">
+            <div className="space-y-1">
+              <label className="text-zinc-300 font-semibold">1. Webhook URL untuk Interaksi 2-Arah (Command Bot):</label>
+              <div className="rounded bg-zinc-900 px-3 py-1.5 font-mono text-zinc-300 select-all border border-zinc-800 text-[11px]">
+                https://domain-anda.com/api/telegram
+              </div>
+              <p className="text-[10px] text-zinc-500">
+                Set webhook via browser: <code>https://api.telegram.org/bot[TOKEN]/setWebhook?url=[URL_DIATAS]</code>
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-zinc-300 font-semibold">2. Konfigurasi File .env.local di Server:</label>
+              <div className="rounded bg-zinc-900 p-2.5 font-mono text-zinc-300 text-[11px] border border-zinc-800 space-y-1 select-all">
+                <div>TELEGRAM_BOT_TOKEN=7123456789:AAH...</div>
+                <div>TELEGRAM_CHANNEL_ID=@nama_channel_anda_atau_id_grup</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </Section>
 
       {/* ----------------------------------------------------------------- */}

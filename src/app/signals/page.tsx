@@ -12,6 +12,7 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
+  Send,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -271,10 +272,39 @@ export default function SignalsPage() {
   const refreshSignals = useForexStore((s) => s.refreshSignals);
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [broadcastLoading, setBroadcastLoading] = useState(false);
+  const [broadcastStatus, setBroadcastStatus] = useState<string | null>(null);
 
   useEffect(() => {
     refreshSignals();
   }, [refreshSignals]);
+
+  async function handleBroadcastTop() {
+    if (!topSignal) return;
+    setBroadcastLoading(true);
+    setBroadcastStatus(null);
+
+    try {
+      const res = await fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'SIGNAL_BROADCAST',
+          signal: topSignal,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBroadcastStatus('✓ Sinyal teratas berhasil di-broadcast ke Channel Telegram!');
+      } else {
+        setBroadcastStatus(`❌ Gagal: ${data.error}`);
+      }
+    } catch {
+      setBroadcastStatus('❌ Kesalahan jaringan saat broadcast');
+    } finally {
+      setBroadcastLoading(false);
+    }
+  }
 
   // Sort by totalScore descending
   const sorted = useMemo(
@@ -312,10 +342,29 @@ export default function SignalsPage() {
         <span className="text-xs text-zinc-500 font-mono">Mesin Sinyal Multi-Faktor</span>
       </div>
 
-      <h1 className="flex items-center gap-2 text-lg font-semibold text-zinc-100">
-        <Zap className="h-5 w-5 text-amber-400" />
-        Mesin Sinyal Forex
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="flex items-center gap-2 text-lg font-semibold text-zinc-100">
+          <Zap className="h-5 w-5 text-amber-400" />
+          Mesin Sinyal Forex
+        </h1>
+
+        <button
+          onClick={handleBroadcastTop}
+          disabled={broadcastLoading || !topSignal}
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500 active:scale-95 disabled:opacity-50 transition-all"
+        >
+          <Send className="h-3.5 w-3.5" />
+          {broadcastLoading ? 'Menyiarkan...' : 'Siarkan Sinyal Top ke Telegram Channel'}
+        </button>
+      </div>
+
+      {broadcastStatus && (
+        <div className={`p-3 rounded-lg text-xs font-semibold ${
+          broadcastStatus.includes('✓') ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30' : 'bg-red-950/60 text-red-300 border border-red-500/30'
+        }`}>
+          {broadcastStatus}
+        </div>
+      )}
 
       {/* ----------------------------------------------------------------- */}
       {/* Signal Overview                                                   */}

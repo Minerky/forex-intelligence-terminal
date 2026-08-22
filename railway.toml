@@ -1,0 +1,8 @@
+# Railway Config for 24/7 Telegram Autobot
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "node scripts/telegram-autobot.mjs"
+restartPolicyType = "ALWAYS"
+restartPolicyMaxRetries = 10
