@@ -50,9 +50,12 @@ export default function ActionPlanPage() {
   }, []);
 
   useEffect(() => {
-    refreshSignals();
-    const id = setInterval(updatePrices, 2000);
-    return () => clearInterval(id);
+    // Only periodically update if market is open
+    if (isMarketOpenNow()) {
+      refreshSignals();
+      const id = setInterval(updatePrices, 2000);
+      return () => clearInterval(id);
+    }
   }, [refreshSignals, updatePrices]);
 
   const marketOpen = isMarketOpenNow();
@@ -138,6 +141,19 @@ export default function ActionPlanPage() {
           </span>
         </div>
       </div>
+
+      {/* Market Closed Weekend Notice */}
+      {!marketOpen && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 flex items-start gap-3 text-xs text-amber-200">
+          <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <strong className="block text-amber-300">Pasar Sedang Libur Akhir Pekan (Weekend Mode)</strong>
+            <p className="text-zinc-400 leading-relaxed">
+              Pasar Forex &amp; Emas tutup dari Sabtu 04:00 WIB hingga Senin 04:00 WIB. Rencana aksi di bawah merupakan <strong>snapshot harga penutupan terakhir</strong> yang dibekukan (freeze) dan siap dianalisis kembali saat pembukaan sesi Sydney/Tokyo Senin pagi.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Philosophy Card */}
       <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-zinc-900 to-zinc-900 p-5 shadow-xl space-y-2">
