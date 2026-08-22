@@ -190,7 +190,7 @@ export function Sidebar() {
           >
             <ShieldCheck size={12} className="shrink-0 text-emerald-400" />
             <span className={`font-semibold uppercase tracking-wider ${!sidebarOpen && 'lg:hidden'}`}>
-              Terminal Live (PRO)
+              Gandasuli Sinyal PRO
             </span>
           </div>
         </div>

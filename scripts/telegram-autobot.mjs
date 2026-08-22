@@ -164,7 +164,7 @@ function evaluateRealtimeEntry(row) {
 async function sendTelegramAlert(signal) {
   const isBuy = signal.direction === 'BUY';
   const message =
-    `🚨 <b>[ENTRY SIGNAL] SINYAL TRADING BARU TERDETEKSI!</b>\n\n` +
+    `🚨 <b>[GANDASULI SINYAL] ENTRY BARU TERDETEKSI!</b>\n\n` +
     `🪙 <b>Instrumen:</b> <code>${signal.pair}</code>\n` +
     `🎯 <b>Aksi Eksekusi:</b> <b>${isBuy ? '🟢 BUY / BELI' : '🔴 SELL / JUAL'}</b>\n` +
     `📍 <b>Harga Entry:</b> <code>${fmt(signal.entry, signal.pair)}</code>\n` +

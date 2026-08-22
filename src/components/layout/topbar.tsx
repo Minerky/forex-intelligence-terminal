@@ -74,8 +74,8 @@ export function Topbar() {
       </button>
 
       {/* Branding */}
-      <span className="hidden whitespace-nowrap text-xs font-semibold tracking-wide text-zinc-300 sm:block">
-        Terminal Intelijen Forex
+      <span className="hidden whitespace-nowrap text-xs font-bold tracking-wide text-emerald-400 sm:block">
+        GANDASULI SINYAL
       </span>
 
       {/* Session indicators */}

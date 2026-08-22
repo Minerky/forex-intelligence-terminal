@@ -438,7 +438,7 @@ export default function SettingsPage() {
           </div>
           <div className="flex justify-between">
             <span>Platform</span>
-            <span className="text-zinc-200 font-semibold">Forex Intelligence Terminal (PRO)</span>
+            <span className="text-zinc-200 font-semibold">Gandasuli Sinyal Terminal (PRO)</span>
           </div>
           <div className="flex justify-between">
             <span>Penyedia Data</span>

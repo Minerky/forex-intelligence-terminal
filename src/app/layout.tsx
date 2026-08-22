@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Forex Intelligence Terminal",
-  description: "AI-powered forex market analysis and trading intelligence platform",
+  title: "Gandasuli Sinyal - Forex Intelligence Terminal",
+  description: "Platform Sinyal AI dan Analisis Pasar Forex & Emas Gandasuli Sinyal",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

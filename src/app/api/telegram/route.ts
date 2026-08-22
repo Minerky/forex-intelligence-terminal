@@ -31,15 +31,15 @@ function handleCommand(cmd: string): string {
 
   if (cleanCmd === '/start' || cleanCmd === '/help') {
     return (
-      `🤖 <b>FOREX INTELLIGENCE TERMINAL BOT</b>\n\n` +
-      `Selamat datang! Gunakan command berikut untuk analisa dan sinyal pasar real-time:\n\n` +
+      `🤖 <b>GANDASULI SINYAL BOT</b>\n\n` +
+      `Selamat datang di Gandasuli Sinyal! Gunakan command berikut untuk analisa dan sinyal pasar real-time:\n\n` +
       `📌 <b>COMMAND UTAMA:</b>\n` +
       `• <code>/gold</code> atau <code>/xauusd</code> — Live analisis & harga Emas\n` +
       `• <code>/signals</code> atau <code>/sinyal</code> — Rekomendasi sinyal AI terbaru\n` +
       `• <code>/market</code> — Status sesi pasar London, NY, Tokyo, Sydney\n` +
       `• <code>/calendar</code> — Kalender berita ekonomi High-Impact hari ini\n` +
       `• <code>/forex</code> — Ringkasan pasangan mata uang utama\n\n` +
-      `<i>💡 Ditenagai oleh AI Signal Engine & TradingView Scanner</i>`
+      `<i>💡 Ditenagai oleh Gandasuli Sinyal AI Engine</i>`
     );
   }
 
@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
     } else if (body.type === 'DAILY_BRIEFING') {
       const gold = CURRENCY_PAIRS.find((p) => p.symbol === 'XAU/USD');
       messageToSend =
-        `🌅 <b>[DAILY MARKET BRIEFING] FOREX TERMINAL</b>\n\n` +
+        `🌅 <b>[DAILY MARKET BRIEFING] GANDASULI SINYAL</b>\n\n` +
         `👑 <b>Emas (XAU/USD):</b> $${gold?.price.toFixed(2) || '2938.50'} (${gold?.trend || 'Bullish'})\n` +
         `📊 <b>Fokus Hari Ini:</b> Likuiditas sesi London & rilis berita US Dollar.\n\n` +
         `Buka terminal untuk grafik live: /signals atau kunjungi dashboard.\n` +
