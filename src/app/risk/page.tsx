@@ -79,29 +79,47 @@ function calculateRisk(config: {
 // ---------------------------------------------------------------------------
 
 export default function RiskPage() {
-  const [pair, setPair] = useState('EUR/USD');
+  const [pair, setPair] = useState('XAU/USD');
+  const [accountType, setAccountType] = useState<'standard' | 'cent'>('standard');
   const [accountCurrency, setAccountCurrency] = useState('USD');
   const [balance, setBalance] = useState(10000);
   const [riskPercent, setRiskPercent] = useState(2);
-  const [entryPrice, setEntryPrice] = useState(BASE_PRICES['EUR/USD']);
-  const [stopLoss, setStopLoss] = useState(BASE_PRICES['EUR/USD'] - 0.0020);
-  const [takeProfit, setTakeProfit] = useState(BASE_PRICES['EUR/USD'] + 0.0040);
+  const [entryPrice, setEntryPrice] = useState(BASE_PRICES['XAU/USD']);
+  const [stopLoss, setStopLoss] = useState(BASE_PRICES['XAU/USD'] - 15.0);
+  const [takeProfit, setTakeProfit] = useState(BASE_PRICES['XAU/USD'] + 33.0);
 
   // Update prices when pair changes
   function handlePairChange(newPair: string) {
     setPair(newPair);
     const bp = BASE_PRICES[newPair] ?? 1.085;
     const isJpy = newPair.includes('JPY');
-    const offset = isJpy ? 0.20 : 0.0020;
+    const isGold = newPair.includes('XAU');
+    const offset = isGold ? 15.0 : isJpy ? 0.40 : 0.0025;
     setEntryPrice(bp);
-    setStopLoss(Math.round((bp - offset) * (isJpy ? 100 : 10000)) / (isJpy ? 100 : 10000));
-    setTakeProfit(Math.round((bp + offset * 2) * (isJpy ? 100 : 10000)) / (isJpy ? 100 : 10000));
+    setStopLoss(Math.round((bp - offset) * (isJpy || isGold ? 100 : 10000)) / (isJpy || isGold ? 100 : 10000));
+    setTakeProfit(Math.round((bp + offset * 2.2) * (isJpy || isGold ? 100 : 10000)) / (isJpy || isGold ? 100 : 10000));
   }
 
-  const result = useMemo(
-    () => calculateRisk({ balance, riskPercent, entryPrice, stopLoss, takeProfit, pair }),
-    [balance, riskPercent, entryPrice, stopLoss, takeProfit, pair]
-  );
+  const result = useMemo(() => {
+    // If Cent account, convert effective balance for standard lot calc or show cent lots
+    const effectiveBalance = accountType === 'cent' ? balance / 100 : balance;
+    const baseCalc = calculateRisk({ balance: effectiveBalance, riskPercent, entryPrice, stopLoss, takeProfit, pair });
+
+    if (accountType === 'cent') {
+      return {
+        ...baseCalc,
+        lotSizeCent: Math.round(baseCalc.lotSize * 100 * 100) / 100, // In cent broker, 1.00 lot = 0.01 standard
+        riskAmountCent: Math.round(baseCalc.riskAmount * 100),
+        potentialProfitCent: Math.round(baseCalc.potentialProfit * 100),
+      };
+    }
+    return {
+      ...baseCalc,
+      lotSizeCent: Math.round(baseCalc.lotSize * 100 * 100) / 100,
+      riskAmountCent: Math.round(baseCalc.riskAmount * 100),
+      potentialProfitCent: Math.round(baseCalc.potentialProfit * 100),
+    };
+  }, [balance, riskPercent, entryPrice, stopLoss, takeProfit, pair, accountType]);
 
   const riskBarWidth = balance > 0 ? Math.min((result.riskAmount / balance) * 100, 100) : 0;
   const rrTotal = result.riskAmount + result.potentialProfit;
@@ -140,12 +158,48 @@ export default function RiskPage() {
             Parameter Perdagangan
           </h2>
 
+          {/* Account Type Selector */}
+          <div className="space-y-1">
+            <span className="text-xs text-zinc-500">Tipe Akun Broker</span>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setAccountType('standard')}
+                className={`rounded border px-3 py-2 text-xs font-bold transition-all ${
+                  accountType === 'standard'
+                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30'
+                    : 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Akun Standard ($ USD)
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccountType('cent')}
+                className={`rounded border px-3 py-2 text-xs font-bold transition-all ${
+                  accountType === 'cent'
+                    ? 'border-purple-500 bg-purple-500/10 text-purple-400 ring-1 ring-purple-500/30'
+                    : 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Akun Cent (¢ USC)
+              </button>
+            </div>
+            <span className="text-[10px] text-zinc-500 block">
+              {accountType === 'cent'
+                ? 'Mode Cent: 1.00 Cent Lot = 0.01 Standard Lot ($0.10/pip). Cocok untuk modal $10 - $100.'
+                : 'Mode Standard: 1.00 Standard Lot = 100,000 unit ($10/pip). Cocok untuk modal $1,000+.'}
+            </span>
+          </div>
+
           {/* Balance */}
           <label className="block">
-            <span className="text-xs text-zinc-500">Saldo Akun ($)</span>
+            <span className="text-xs text-zinc-500">
+              {accountType === 'cent' ? 'Saldo Akun Cent (Contoh: 1.000 USC = $10 USD)' : 'Saldo Akun ($ USD)'}
+            </span>
             <input
               type="number"
-              min={100}
+              min={10}
               value={balance}
               onChange={(e) => setBalance(Number(e.target.value))}
               className="mt-1 block w-full rounded border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 font-mono focus:border-emerald-500 focus:outline-none"
@@ -243,21 +297,33 @@ export default function RiskPage() {
         <div className="space-y-5">
           {/* Calculated values */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <ResultCard label="Position Size" value={`${result.positionSize.toLocaleString()} units`} />
-            <ResultCard label="Standard Lots" value={String(result.lotSizeStandard)} />
-            <ResultCard label="Mini Lots" value={String(result.lotSizeMini)} />
-            <ResultCard label="Micro Lots" value={String(result.lotSizeMicro)} />
-            <ResultCard label="Risk Amount" value={`$${result.riskAmount.toLocaleString()}`} color="text-red-400" />
-            <ResultCard label="Potential Profit" value={`$${result.potentialProfit.toLocaleString()}`} color="text-emerald-400" />
+            <ResultCard label="Ukuran Posisi" value={`${result.positionSize.toLocaleString()} unit`} />
             <ResultCard
-              label="Risk / Reward"
+              label={accountType === 'cent' ? 'Rekomendasi Lot Cent' : 'Standard Lots (1.00)'}
+              value={accountType === 'cent' ? `${result.lotSizeCent} Lot Cent` : String(result.lotSizeStandard)}
+              color="text-emerald-400"
+            />
+            <ResultCard label="Mini Lots (0.10)" value={String(result.lotSizeMini)} />
+            <ResultCard label="Micro Lots (0.01)" value={String(result.lotSizeMicro)} />
+            <ResultCard
+              label={accountType === 'cent' ? 'Total Risiko (USC)' : 'Total Risiko ($)'}
+              value={accountType === 'cent' ? `${result.riskAmountCent} ¢ (${(result.riskAmountCent / 100).toFixed(2)} USD)` : `$${result.riskAmount.toLocaleString()}`}
+              color="text-red-400"
+            />
+            <ResultCard
+              label={accountType === 'cent' ? 'Potensi Profit (USC)' : 'Potensi Profit ($)'}
+              value={accountType === 'cent' ? `${result.potentialProfitCent} ¢ (${(result.potentialProfitCent / 100).toFixed(2)} USD)` : `$${result.potentialProfit.toLocaleString()}`}
+              color="text-emerald-400"
+            />
+            <ResultCard
+              label="Rasio Risiko / Imbalan"
               value={`1 : ${result.riskReward}`}
               color={result.riskReward >= 2 ? 'text-emerald-400' : result.riskReward >= 1 ? 'text-amber-400' : 'text-red-400'}
             />
-            <ResultCard label="Margin Estimate" value={`$${result.marginEstimate.toLocaleString()}`} />
-            <ResultCard label="Pip Value (per lot)" value={`$${result.pipValue}`} />
-            <ResultCard label="Risk (pips)" value={String(result.riskPips)} color="text-red-400" />
-            <ResultCard label="Reward (pips)" value={String(result.rewardPips)} color="text-emerald-400" />
+            <ResultCard label="Estimasi Margin" value={accountType === 'cent' ? `${Math.round(result.marginEstimate * 100)} ¢` : `$${result.marginEstimate.toLocaleString()}`} />
+            <ResultCard label="Nilai Pip (per lot)" value={accountType === 'cent' ? `$${(result.pipValue / 100).toFixed(3)}` : `$${result.pipValue}`} />
+            <ResultCard label="Jarak Risiko (Pips)" value={String(result.riskPips)} color="text-red-400" />
+            <ResultCard label="Jarak Target TP (Pips)" value={String(result.rewardPips)} color="text-emerald-400" />
           </div>
 
           {/* ----------------------------------------------------------------- */}
