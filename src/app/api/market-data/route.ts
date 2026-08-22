@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 // ---------------------------------------------------------------------------
-// Institutional Live Market Data Feed (Direct MT4/MT5 Rates Sync)
+// Real-Time TradingView Live Market Data Provider
 // ---------------------------------------------------------------------------
 
 interface LiveQuote {
@@ -15,21 +15,26 @@ interface LiveQuote {
   low: number;
   open: number;
   prevClose: number;
+  rsi?: number;
+  atr?: number;
+  macd?: { value: number; signal: number; histogram: number };
+  trend?: 'Bullish' | 'Bearish' | 'Neutral';
+  recommendation?: number;
   timestamp: number;
   source: string;
 }
 
-const YAHOO_SYMBOLS: { yahoo: string; symbol: string; dec: number; spreadPips: number }[] = [
-  { yahoo: 'EURUSD=X', symbol: 'EUR/USD', dec: 4, spreadPips: 1.2 },
-  { yahoo: 'GBPUSD=X', symbol: 'GBP/USD', dec: 4, spreadPips: 1.5 },
-  { yahoo: 'USDJPY=X', symbol: 'USD/JPY', dec: 2, spreadPips: 1.2 },
-  { yahoo: 'USDCHF=X', symbol: 'USD/CHF', dec: 4, spreadPips: 1.6 },
-  { yahoo: 'AUDUSD=X', symbol: 'AUD/USD', dec: 4, spreadPips: 1.4 },
-  { yahoo: 'USDCAD=X', symbol: 'USD/CAD', dec: 4, spreadPips: 1.5 },
-  { yahoo: 'NZDUSD=X', symbol: 'NZD/USD', dec: 4, spreadPips: 1.8 },
-  { yahoo: 'EURGBP=X', symbol: 'EUR/GBP', dec: 4, spreadPips: 1.6 },
-  { yahoo: 'EURJPY=X', symbol: 'EUR/JPY', dec: 2, spreadPips: 1.8 },
-  { yahoo: 'GBPJPY=X', symbol: 'GBP/JPY', dec: 2, spreadPips: 2.2 },
+const TV_FOREX_TICKERS = [
+  { tv: 'FX_IDC:EURUSD', symbol: 'EUR/USD', dec: 4, spreadPips: 1.2 },
+  { tv: 'FX_IDC:GBPUSD', symbol: 'GBP/USD', dec: 4, spreadPips: 1.5 },
+  { tv: 'FX_IDC:USDJPY', symbol: 'USD/JPY', dec: 2, spreadPips: 1.2 },
+  { tv: 'FX_IDC:USDCHF', symbol: 'USD/CHF', dec: 4, spreadPips: 1.6 },
+  { tv: 'FX_IDC:AUDUSD', symbol: 'AUD/USD', dec: 4, spreadPips: 1.4 },
+  { tv: 'FX_IDC:USDCAD', symbol: 'USD/CAD', dec: 4, spreadPips: 1.5 },
+  { tv: 'FX_IDC:NZDUSD', symbol: 'NZD/USD', dec: 4, spreadPips: 1.8 },
+  { tv: 'FX_IDC:EURGBP', symbol: 'EUR/GBP', dec: 4, spreadPips: 1.6 },
+  { tv: 'FX_IDC:EURJPY', symbol: 'EUR/JPY', dec: 2, spreadPips: 1.8 },
+  { tv: 'FX_IDC:GBPJPY', symbol: 'GBP/JPY', dec: 2, spreadPips: 2.2 },
 ];
 
 export async function GET() {
@@ -37,102 +42,169 @@ export async function GET() {
     const liveQuotes: Record<string, LiveQuote> = {};
     const now = Date.now();
 
-    // 1. Fetch Real Live Forex rates from Institutional Interbank Feed (Yahoo FX Charts API)
-    await Promise.all(
-      YAHOO_SYMBOLS.map(async ({ yahoo, symbol, dec, spreadPips }) => {
-        try {
-          const res = await fetch(
-            `https://query1.finance.yahoo.com/v8/finance/chart/${yahoo}?interval=1m&range=1d`,
-            {
-              headers: {
-                'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                Accept: 'application/json',
-              },
-              next: { revalidate: 2 },
-            }
-          );
+    // 1. Fetch Live Forex quotes from TradingView Scanner API
+    try {
+      const tvForexRes = await fetch('https://scanner.tradingview.com/forex/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)',
+        },
+        body: JSON.stringify({
+          symbols: {
+            tickers: TV_FOREX_TICKERS.map((t) => t.tv),
+          },
+          columns: [
+            'close',
+            'open',
+            'high',
+            'low',
+            'change',
+            'change_abs',
+            'Recommend.All',
+            'RSI',
+            'MACD.macd',
+            'MACD.signal',
+            'ATR',
+          ],
+        }),
+        next: { revalidate: 2 },
+      });
 
-          if (res.ok) {
-            const data = await res.json();
-            const meta = data?.chart?.result?.[0]?.meta;
-            if (meta && meta.regularMarketPrice) {
-              const price = Number(meta.regularMarketPrice);
-              const prevClose = Number(meta.chartPreviousClose || meta.previousClose || price);
-              const high = Number(meta.regularMarketDayHigh || price * 1.002);
-              const low = Number(meta.regularMarketDayLow || price * 0.998);
-              const change = Number((price - prevClose).toFixed(dec));
-              const changePercent = Number((((price - prevClose) / prevClose) * 100).toFixed(2));
+      if (tvForexRes.ok) {
+        const tvData = await tvForexRes.json();
+        if (Array.isArray(tvData.data)) {
+          for (const item of tvData.data) {
+            const match = TV_FOREX_TICKERS.find((t) => t.tv === item.s);
+            if (match && Array.isArray(item.d)) {
+              const [close, open, high, low, changePct, changeAbs, rec, rsi, macdVal, macdSig, atr] = item.d;
 
-              const pipUnit = symbol.includes('JPY') ? 0.01 : 0.0001;
-              const halfSpread = (spreadPips * pipUnit) / 2;
+              const price = Number(close);
+              const dec = match.dec;
+              const pipUnit = match.symbol.includes('JPY') ? 0.01 : 0.0001;
+              const halfSpread = (match.spreadPips * pipUnit) / 2;
 
-              liveQuotes[symbol] = {
-                symbol,
+              let trend: 'Bullish' | 'Bearish' | 'Neutral' = 'Neutral';
+              if (rec > 0.1) trend = 'Bullish';
+              else if (rec < -0.1) trend = 'Bearish';
+
+              liveQuotes[match.symbol] = {
+                symbol: match.symbol,
                 price: Number(price.toFixed(dec)),
                 bid: Number((price - halfSpread).toFixed(dec)),
                 ask: Number((price + halfSpread).toFixed(dec)),
-                change,
-                changePercent,
-                high: Number(high.toFixed(dec)),
-                low: Number(low.toFixed(dec)),
-                open: Number(prevClose.toFixed(dec)),
-                prevClose: Number(prevClose.toFixed(dec)),
+                change: Number(changeAbs ? Number(changeAbs).toFixed(dec) : '0'),
+                changePercent: Number(changePct ? Number(changePct).toFixed(2) : '0'),
+                high: Number(Number(high || price * 1.002).toFixed(dec)),
+                low: Number(Number(low || price * 0.998).toFixed(dec)),
+                open: Number(Number(open || price).toFixed(dec)),
+                prevClose: Number(Number(open || price).toFixed(dec)),
+                rsi: rsi ? Number(Number(rsi).toFixed(1)) : undefined,
+                atr: atr ? Number(Number(atr).toFixed(dec)) : undefined,
+                macd:
+                  macdVal !== undefined && macdSig !== undefined
+                    ? {
+                        value: Number(macdVal),
+                        signal: Number(macdSig),
+                        histogram: Number(macdVal) - Number(macdSig),
+                      }
+                    : undefined,
+                trend,
+                recommendation: rec,
                 timestamp: now,
-                source: 'MT4/MT5 Interbank Direct Feed',
+                source: 'TradingView Real-Time Feed',
               };
             }
           }
-        } catch {
-          // Individual pair fetch failure ignored
         }
-      })
-    );
-
-    // 2. Fetch Spot Gold (XAU/USD) Real-time Tick Price from Binance Spot Feed (PAXGUSDT)
-    try {
-      const goldRes = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=PAXGUSDT', {
-        headers: { 'User-Agent': 'ForexIntelligenceTerminal/1.0' },
-        next: { revalidate: 1 },
-      });
-
-      if (goldRes.ok) {
-        const goldData = await goldRes.json();
-        const goldPrice = parseFloat(goldData.lastPrice);
-        const goldHigh = parseFloat(goldData.highPrice);
-        const goldLow = parseFloat(goldData.lowPrice);
-        const goldChange = parseFloat(goldData.priceChange);
-        const goldChangePct = parseFloat(goldData.priceChangePercent);
-        const goldOpen = parseFloat(goldData.openPrice);
-
-        liveQuotes['XAU/USD'] = {
-          symbol: 'XAU/USD',
-          price: Number(goldPrice.toFixed(2)),
-          bid: Number((goldPrice - 0.25).toFixed(2)),
-          ask: Number((goldPrice + 0.25).toFixed(2)),
-          change: Number(goldChange.toFixed(2)),
-          changePercent: Number(goldChangePct.toFixed(2)),
-          high: Number(goldHigh.toFixed(2)),
-          low: Number(goldLow.toFixed(2)),
-          open: Number(goldOpen.toFixed(2)),
-          prevClose: Number(goldOpen.toFixed(2)),
-          timestamp: now,
-          source: 'Live Spot Gold Orderbook Feed',
-        };
       }
     } catch {
-      // Fallback if gold endpoint is busy
+      // Forex Scanner error handled
+    }
+
+    // 2. Fetch Live Gold (XAU/USD) from TradingView CFD Scanner (OANDA:XAUUSD / TVC:GOLD)
+    try {
+      const tvGoldRes = await fetch('https://scanner.tradingview.com/cfd/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)',
+        },
+        body: JSON.stringify({
+          symbols: {
+            tickers: ['OANDA:XAUUSD', 'TVC:GOLD'],
+          },
+          columns: [
+            'close',
+            'open',
+            'high',
+            'low',
+            'change',
+            'change_abs',
+            'Recommend.All',
+            'RSI',
+            'MACD.macd',
+            'MACD.signal',
+            'ATR',
+          ],
+        }),
+        next: { revalidate: 2 },
+      });
+
+      if (tvGoldRes.ok) {
+        const goldTvData = await tvGoldRes.json();
+        const goldItem = goldTvData?.data?.[0];
+
+        if (goldItem && Array.isArray(goldItem.d)) {
+          const [close, open, high, low, changePct, changeAbs, rec, rsi, macdVal, macdSig, atr] = goldItem.d;
+          const goldPrice = Number(close);
+
+          let trend: 'Bullish' | 'Bearish' | 'Neutral' = 'Neutral';
+          if (rec > 0.1) trend = 'Bullish';
+          else if (rec < -0.1) trend = 'Bearish';
+
+          liveQuotes['XAU/USD'] = {
+            symbol: 'XAU/USD',
+            price: Number(goldPrice.toFixed(2)),
+            bid: Number((goldPrice - 0.25).toFixed(2)),
+            ask: Number((goldPrice + 0.25).toFixed(2)),
+            change: Number(changeAbs ? Number(changeAbs).toFixed(2) : '0'),
+            changePercent: Number(changePct ? Number(changePct).toFixed(2) : '0'),
+            high: Number(Number(high || goldPrice * 1.005).toFixed(2)),
+            low: Number(Number(low || goldPrice * 0.995).toFixed(2)),
+            open: Number(Number(open || goldPrice).toFixed(2)),
+            prevClose: Number(Number(open || goldPrice).toFixed(2)),
+            rsi: rsi ? Number(Number(rsi).toFixed(1)) : undefined,
+            atr: atr ? Number(Number(atr).toFixed(2)) : undefined,
+            macd:
+              macdVal !== undefined && macdSig !== undefined
+                ? {
+                    value: Number(macdVal),
+                    signal: Number(macdSig),
+                    histogram: Number(macdVal) - Number(macdSig),
+                  }
+                : undefined,
+            trend,
+            recommendation: rec,
+            timestamp: now,
+            source: 'TradingView (OANDA / TVC Spot Gold)',
+          };
+        }
+      }
+    } catch {
+      // Gold Scanner error handled
     }
 
     return NextResponse.json({
       success: true,
       status: 'live',
+      provider: 'TradingView Real-Time Feed',
       timestamp: now,
       quotes: liveQuotes,
     });
   } catch (error) {
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch live market data', status: 'fallback' },
+      { success: false, error: 'Failed to fetch TradingView market data', status: 'fallback' },
       { status: 500 }
     );
   }

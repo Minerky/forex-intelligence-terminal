@@ -128,14 +128,14 @@ export const useForexStore = create<ForexStore>((set, get) => ({
         // Fallback to interbank feed
       }
 
-      // 2. Fallback to live interbank & Gold spot API
+      // 2. Fetch live institutional feed from TradingView
       const res = await fetch('/api/market-data', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.quotes) {
           set((state) => ({
             dataStatus: 'live',
-            dataSourceName: 'Live Interbank & Gold Spot Feed',
+            dataSourceName: 'TradingView Real-Time Feed',
             pairs: state.pairs.map((p) => {
               const live = data.quotes[p.symbol];
               if (live) {
@@ -148,6 +148,10 @@ export const useForexStore = create<ForexStore>((set, get) => ({
                   low: Math.min(p.low, live.low),
                   change: live.change,
                   changePercent: live.changePercent,
+                  rsi: live.rsi ?? p.rsi,
+                  atr: live.atr ?? p.atr,
+                  macd: live.macd ?? p.macd,
+                  trend: live.trend ?? p.trend,
                   timestamp: live.timestamp,
                 };
               }

@@ -332,12 +332,12 @@ export default function SettingsPage() {
         <Row label="Penyedia Data">
           <div className="text-right">
             <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/20">
-              Live Interbank &amp; Gold Spot (ECB + Binance)
+              TradingView Real-Time Feed (Forex &amp; Gold)
             </span>
           </div>
         </Row>
         <p className="text-[11px] text-zinc-500">
-          Data Emas (XAU/USD) dan kurs mata uang utama disinkronkan secara otomatis dari data pasar live interbank.
+          Data harga spot Emas (XAU/USD) dan pasangan forex utama disinkronkan langsung secara real-time dari TradingView Scanner Engine.
         </p>
 
         <Row label="API Key">
