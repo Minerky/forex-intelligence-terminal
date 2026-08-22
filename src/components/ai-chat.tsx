@@ -226,6 +226,7 @@ export function AiChat() {
           </button>
         </div>
       </div>
+      </div>
     </>
   );
 }
