@@ -211,9 +211,30 @@ const FUNDAMENTALS: Record<Currency, CurrencyFundamentals> = {
     marketExpectation: '80% probability of hold',
     rateTrajectory: 'Expected to hold well into 2027',
   },
+  XAU: {
+    currency: 'XAU',
+    interestRate: 0.0,
+    rateTrend: 'Non-yielding asset',
+    cpi: 0.0,
+    cpiTarget: 0.0,
+    employment: 'Global safe haven demand',
+    employmentTrend: 'Strong reserve accumulation',
+    gdp: 0.0,
+    gdpTrend: 'Hedge against currency debasement',
+    tradeBalance: 'Central Bank Buying: +1,000t',
+    consumerConfidence: 85.0,
+    pmiManufacturing: 50.0,
+    pmiServices: 50.0,
+    centralBank: 'World Gold Council / Central Banks',
+    stance: 'Hawkish',
+    lastMeeting: 'De-dollarization & reserve expansion',
+    nextMeeting: 'Ongoing 2026 Purchases',
+    marketExpectation: 'High central bank net purchases',
+    rateTrajectory: 'Bullish secular trend driven by real rates and geopolitics',
+  },
 };
 
-const CURRENCIES: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'CHF', 'AUD', 'CAD', 'NZD'];
+const CURRENCIES: Currency[] = ['USD', 'EUR', 'GBP', 'JPY', 'CHF', 'AUD', 'CAD', 'NZD', 'XAU'];
 
 const STANCE_COLOR: Record<Stance, string> = {
   Hawkish: 'bg-emerald-400/10 text-emerald-400 ring-emerald-400/20',
@@ -234,6 +255,7 @@ const AI_SUMMARIES: Record<Currency, string> = {
   AUD: 'AUD influenced heavily by China demand and commodity prices. RBA remains hawkish with inflation well above 2.5% target at 3.8%. Strong trade surplus from iron ore exports. Vulnerable to China economic slowdown.',
   CAD: 'CAD tied to oil prices and US economic cycle. BoC at 5.00% but markets expect easing as GDP growth slows to 1.1%. Employment softening provides cover for rate cuts. Trade balance turning negative adds pressure.',
   NZD: 'NZD fundamentals mixed with very high inflation (4.7%) keeping RBNZ hawkish at 5.50%. GDP growth sluggish at 0.9%. Manufacturing PMI deeply contractionary. High rates support carry trades but weigh on domestic growth.',
+  XAU: 'Emas (XAU) didorong oleh arus safe-haven geopolitik, tren de-dolarisasi global, dan pembelian emas fisik agresif oleh bank-bank sentral dunia. Sebagai aset lindung nilai terhadap inflasi dan pelemahan mata uang fiat, prospek fundamental Emas jangka panjang tetap sangat bullish.',
 };
 
 // ---------------------------------------------------------------------------

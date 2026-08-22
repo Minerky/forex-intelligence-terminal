@@ -393,7 +393,7 @@ export function generateCurrencyStrength(): CurrencyStrength[] {
 
   // Base strengths roughly consistent with pair seeds
   const baseStrengths: Record<Currency, number> = {
-    USD: 65, EUR: 55, GBP: 60, JPY: 45, CHF: 42, AUD: 38, CAD: 48, NZD: 35,
+    USD: 65, EUR: 55, GBP: 60, JPY: 45, CHF: 42, AUD: 38, CAD: 48, NZD: 35, XAU: 75,
   };
 
   const data: CurrencyStrength[] = currencies.map((c) => {
