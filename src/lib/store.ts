@@ -180,7 +180,10 @@ export const useForexStore = create<ForexStore>((set, get) => ({
   },
 
   signals: [],
-  refreshSignals: () => set({ signals: generateSignals() }),
+  refreshSignals: () => {
+    const { pairs } = get();
+    set({ signals: generateSignals(pairs) });
+  },
 
   currencyStrength: generateCurrencyStrength(),
   refreshStrength: () => set({ currencyStrength: generateCurrencyStrength() }),

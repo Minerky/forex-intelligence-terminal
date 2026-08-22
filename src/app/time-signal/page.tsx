@@ -159,54 +159,55 @@ export default function TimeSignalPage() {
     ];
   }, [now]);
 
-  // Initialize realistic signals
+  // Initialize realistic signals linked to live TradingView prices
   useEffect(() => {
     if (pairs.length === 0) return;
 
-    const initialSignals: TimeSignal[] = pairs.slice(0, 6).map((p, idx) => {
-      const isJPY = p.symbol.includes('JPY');
-      const isGold = p.symbol.includes('XAU');
-      const pip = isGold ? 0.1 : isJPY ? 0.01 : 0.0001;
-      const isBuy = p.trend === 'Bullish' || p.rsi > 50;
-      const action = isBuy ? 'BUY' : 'SELL';
-      const entryPrice = p.price;
+    setSignals((prev) => {
+      // If we already have signals, preserve their status and update entry/TP/CL to live prices if still pending
+      return pairs.slice(0, 6).map((p, idx) => {
+        const isJPY = p.symbol.includes('JPY');
+        const isGold = p.symbol.includes('XAU');
+        const pip = isGold ? 0.1 : isJPY ? 0.01 : 0.0001;
+        const isBuy = p.trend === 'Bullish' || p.rsi > 50;
+        const action = isBuy ? 'BUY' : 'SELL';
+        const entryPrice = p.price;
 
-      // Scheduled seconds in the near future (e.g. 15s, 45s, 90s from now)
-      const futureSec = (idx + 1) * 20;
+        const existing = prev.find((s) => s.pair === p.symbol);
+        const futureSec = existing ? existing.targetSecondsLeft : (idx + 1) * 20;
 
-      const riskPips = isGold ? 30 : 15;
-      const tp1Pips = isGold ? 30 : 15;
-      const tp2Pips = isGold ? 60 : 30;
-      const tp3Pips = isGold ? 100 : 50;
+        const riskPips = isGold ? 30 : 15;
+        const tp1Pips = isGold ? 30 : 15;
+        const tp2Pips = isGold ? 60 : 30;
+        const tp3Pips = isGold ? 100 : 50;
 
-      const tp1 = isBuy ? entryPrice + tp1Pips * pip : entryPrice - tp1Pips * pip;
-      const tp2 = isBuy ? entryPrice + tp2Pips * pip : entryPrice - tp2Pips * pip;
-      const tp3 = isBuy ? entryPrice + tp3Pips * pip : entryPrice - tp3Pips * pip;
-      const cutLoss = isBuy ? entryPrice - riskPips * pip : entryPrice + riskPips * pip;
+        const tp1 = isBuy ? entryPrice + tp1Pips * pip : entryPrice - tp1Pips * pip;
+        const tp2 = isBuy ? entryPrice + tp2Pips * pip : entryPrice - tp2Pips * pip;
+        const tp3 = isBuy ? entryPrice + tp3Pips * pip : entryPrice - tp3Pips * pip;
+        const cutLoss = isBuy ? entryPrice - riskPips * pip : entryPrice + riskPips * pip;
 
-      const d = isJPY || isGold ? 2 : 4;
+        const d = isJPY || isGold ? 2 : 4;
 
-      return {
-        id: `sig-${p.symbol}-${idx}`,
-        pair: p.symbol,
-        action,
-        scheduledTime: 'Waktu Mendatang',
-        targetSecondsLeft: futureSec,
-        entryPrice: Number(entryPrice.toFixed(d)),
-        tp1: Number(tp1.toFixed(d)),
-        tp2: Number(tp2.toFixed(d)),
-        tp3: Number(tp3.toFixed(d)),
-        cutLoss: Number(cutLoss.toFixed(d)),
-        riskPips,
-        rewardPips: tp2Pips,
-        status: idx === 0 ? 'ACTIVE' : 'PENDING',
-        timeframe: idx % 2 === 0 ? 'M5' : 'M15',
-        reason: `${action === 'BUY' ? 'Breakout EMA 20 & RSI di atas 55' : 'Rejection Resistance & Bearish Momentum'} terkonfirmasi`,
-      };
+        return {
+          id: existing ? existing.id : `sig-${p.symbol}-${idx}`,
+          pair: p.symbol,
+          action,
+          scheduledTime: 'Waktu Mendatang',
+          targetSecondsLeft: futureSec,
+          entryPrice: Number(entryPrice.toFixed(d)),
+          tp1: Number(tp1.toFixed(d)),
+          tp2: Number(tp2.toFixed(d)),
+          tp3: Number(tp3.toFixed(d)),
+          cutLoss: Number(cutLoss.toFixed(d)),
+          riskPips,
+          rewardPips: tp2Pips,
+          status: existing ? existing.status : idx === 0 ? 'ACTIVE' : 'PENDING',
+          timeframe: idx % 2 === 0 ? 'M5' : 'M15',
+          reason: `${action === 'BUY' ? 'Breakout EMA 20 & RSI di atas 55' : 'Rejection Resistance & Bearish Momentum'} terkonfirmasi`,
+        };
+      });
     });
-
-    setSignals(initialSignals);
-  }, [pairs.length]);
+  }, [pairs]);
 
   // Real-time alert monitor against TP / CL / Entry
   useEffect(() => {

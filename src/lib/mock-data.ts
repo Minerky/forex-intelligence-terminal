@@ -561,8 +561,9 @@ export function generatePrediction(pair: string, pairData: CurrencyPair): Predic
   };
 }
 
-export function generateSignals(): Signal[] {
-  return CURRENCY_PAIRS.slice(0, 7).map((p) => {
+export function generateSignals(pairsList?: CurrencyPair[]): Signal[] {
+  const source = pairsList && pairsList.length > 0 ? pairsList : CURRENCY_PAIRS;
+  return source.slice(0, 7).map((p) => {
     const prediction = generatePrediction(p.symbol, p);
     const techScore = roundTo(clamp(50 + (p.rsi - 50) * 0.8 + (p.macd.histogram > 0 ? 10 : -10), 10, 95), 0);
     const fundScore = roundTo(rand(35, 75), 0);
