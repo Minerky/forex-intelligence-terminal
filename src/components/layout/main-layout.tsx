@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useForexStore } from '@/lib/store';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { AiChat } from '@/components/ai-chat';
@@ -8,7 +9,13 @@ import { CommandPalette } from '@/components/command-palette';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const fetchLiveMarketData = useForexStore((s) => s.fetchLiveMarketData);
+
+  useEffect(() => {
+    setMounted(true);
+    // Immediately fetch live TradingView prices on page load
+    fetchLiveMarketData().catch(() => {});
+  }, [fetchLiveMarketData]);
 
   // Prevent hydration mismatch: mock data uses Math.random()/Date.now()
   // which differ between server and client renders.

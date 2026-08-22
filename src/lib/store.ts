@@ -133,10 +133,8 @@ export const useForexStore = create<ForexStore>((set, get) => ({
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.quotes) {
-          set((state) => ({
-            dataStatus: 'live',
-            dataSourceName: 'TradingView Real-Time Feed',
-            pairs: state.pairs.map((p) => {
+          set((state) => {
+            const updatedPairs = state.pairs.map((p) => {
               const live = data.quotes[p.symbol];
               if (live) {
                 return {
@@ -156,9 +154,20 @@ export const useForexStore = create<ForexStore>((set, get) => ({
                 };
               }
               return p;
-            }),
-            lastUpdate: Date.now(),
-          }));
+            });
+
+            return {
+              dataStatus: 'live',
+              dataSourceName: 'TradingView Real-Time Feed',
+              pairs: updatedPairs,
+              lastUpdate: Date.now(),
+            };
+          });
+
+          // Refresh predictions and signals using the updated live prices
+          const { generatePredictions, refreshSignals } = get();
+          generatePredictions();
+          refreshSignals();
         }
       }
     } catch {
