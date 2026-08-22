@@ -12,7 +12,19 @@ const SESSIONS = [
   { name: 'New York', openUTC: 12, closeUTC: 21 },
 ] as const;
 
-function isSessionOpen(openUTC: number, closeUTC: number, hour: number): boolean {
+export function isForexMarketOpen(d: Date): boolean {
+  const day = d.getUTCDay(); // 0 = Sunday, 6 = Saturday
+  const hour = d.getUTCHours();
+  // Closed from Friday 21:00 UTC through Sunday 21:00 UTC
+  if (day === 6) return false; // Saturday completely closed
+  if (day === 5 && hour >= 21) return false; // Friday after 21:00 UTC closed
+  if (day === 0 && hour < 21) return false; // Sunday before 21:00 UTC closed
+  return true;
+}
+
+function isSessionOpen(openUTC: number, closeUTC: number, d: Date): boolean {
+  if (!isForexMarketOpen(d)) return false;
+  const hour = d.getUTCHours();
   if (openUTC < closeUTC) return hour >= openUTC && hour < closeUTC;
   // wraps midnight
   return hour >= openUTC || hour < closeUTC;
@@ -45,7 +57,7 @@ export function Topbar() {
     return () => window.removeEventListener('keydown', onKey);
   }, [toggleCommandPalette]);
 
-  const utcHour = utcTime.getUTCHours();
+  const marketOpen = isForexMarketOpen(utcTime);
   const timeStr = utcTime.toISOString().slice(11, 19);
 
   return (
@@ -67,7 +79,7 @@ export function Topbar() {
       {/* Session indicators */}
       <div className="hidden items-center gap-2 border-l border-zinc-800 pl-3 md:flex">
         {SESSIONS.map((s) => {
-          const open = isSessionOpen(s.openUTC, s.closeUTC, utcHour);
+          const open = isSessionOpen(s.openUTC, s.closeUTC, utcTime);
           return (
             <span key={s.name} className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide">
               <span className={`h-1.5 w-1.5 rounded-full ${open ? 'bg-emerald-400' : 'bg-zinc-700'}`} />
@@ -104,15 +116,18 @@ export function Topbar() {
           {timeStr} <span className="text-zinc-600">UTC</span>
         </span>
 
-        {/* Data status */}
-        <span className="flex items-center gap-1 text-[10px] font-medium uppercase text-zinc-500">
+        {/* Data status / Market state */}
+        <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase">
           <span
             className={`h-1.5 w-1.5 rounded-full ${
-              dataStatus === 'live' ? 'bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.5)]' :
-              dataStatus === 'delayed' ? 'bg-amber-400' : 'bg-red-400'
+              marketOpen
+                ? 'bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.5)]'
+                : 'bg-amber-400'
             }`}
           />
-          {dataStatus}
+          <span className={marketOpen ? 'text-emerald-400' : 'text-amber-400'}>
+            {marketOpen ? 'Pasar Buka' : 'Pasar Tutup (Akhir Pekan)'}
+          </span>
         </span>
 
         {/* Command palette button */}

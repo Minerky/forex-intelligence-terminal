@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useForexStore } from '@/lib/store';
+import { useForexStore, isMarketOpenNow } from '@/lib/store';
 import {
   Shield,
   Timer,
@@ -210,6 +210,9 @@ export default function TimeSignalPage() {
 
   // Real-time alert monitor against TP / CL / Entry
   useEffect(() => {
+    // If market is closed on weekend, keep signals standby
+    if (!isMarketOpenNow()) return;
+
     setSignals((prevSignals) =>
       prevSignals.map((sig) => {
         const curPair = pairs.find((p) => p.symbol === sig.pair);

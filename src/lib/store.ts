@@ -58,6 +58,17 @@ interface ForexStore {
   lastUpdate: number;
 }
 
+export function isMarketOpenNow(): boolean {
+  const d = new Date();
+  const day = d.getUTCDay(); // 0 = Sunday, 6 = Saturday
+  const hour = d.getUTCHours();
+  // Closed from Friday 21:00 UTC through Sunday 21:00 UTC
+  if (day === 6) return false; // Saturday completely closed
+  if (day === 5 && hour >= 21) return false; // Friday after 21:00 UTC closed
+  if (day === 0 && hour < 21) return false; // Sunday before 21:00 UTC closed
+  return true;
+}
+
 export const useForexStore = create<ForexStore>((set, get) => ({
   pairs: CURRENCY_PAIRS,
   selectedPair: 'XAU/USD',
@@ -66,6 +77,13 @@ export const useForexStore = create<ForexStore>((set, get) => ({
     const { fetchLiveMarketData } = get();
     // Fetch live market feed in background periodically
     fetchLiveMarketData().catch(() => {});
+
+    // If market is closed on weekends, freeze price ticks (no artificial oscillation)
+    if (!isMarketOpenNow()) {
+      set({ lastUpdate: Date.now() });
+      return;
+    }
+
     set((state) => ({
       pairs: state.pairs.map(p => simulatePriceUpdate(p)),
       lastUpdate: Date.now(),
