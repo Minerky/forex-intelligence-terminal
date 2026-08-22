@@ -75,6 +75,42 @@ export const useForexStore = create<ForexStore>((set, get) => ({
   fetchLiveMarketData: async () => {
     try {
       if (typeof window === 'undefined') return;
+
+      // 1. Check if MT4/MT5 Direct Bridge has active real-time ticks
+      try {
+        const mtRes = await fetch('/api/mt-bridge', { cache: 'no-store' });
+        if (mtRes.ok) {
+          const mtData = await mtRes.json();
+          if (mtData.connected && mtData.quotes && Object.keys(mtData.quotes).length > 0) {
+            set((state) => ({
+              dataStatus: 'live',
+              dataSourceName: `MetaTrader 4/5 (${mtData.broker})`,
+              pairs: state.pairs.map((p) => {
+                const mtQuote = mtData.quotes[p.symbol];
+                if (mtQuote) {
+                  return {
+                    ...p,
+                    price: mtQuote.price,
+                    bid: mtQuote.bid,
+                    ask: mtQuote.ask,
+                    spread: mtQuote.spread ?? p.spread,
+                    high: mtQuote.high ? Math.max(p.high, mtQuote.high) : p.high,
+                    low: mtQuote.low ? Math.min(p.low, mtQuote.low) : p.low,
+                    timestamp: mtQuote.time || Date.now(),
+                  };
+                }
+                return p;
+              }),
+              lastUpdate: Date.now(),
+            }));
+            return; // Finished with 100% exact MT4/MT5 prices
+          }
+        }
+      } catch {
+        // Fallback to interbank feed
+      }
+
+      // 2. Fallback to live interbank & Gold spot API
       const res = await fetch('/api/market-data', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();

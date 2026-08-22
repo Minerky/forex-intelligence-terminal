@@ -11,6 +11,7 @@ import {
   Info,
   Moon,
   Sun,
+  Radio,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -299,18 +300,44 @@ export default function SettingsPage() {
       </Section>
 
       {/* ----------------------------------------------------------------- */}
+      {/* MetaTrader 4 / 5 Live Bridge                                       */}
+      {/* ----------------------------------------------------------------- */}
+      <Section title="Koneksi MetaTrader 4 / 5 (Sinkronisasi Broker)" icon={Radio}>
+        <div className="space-y-3 text-xs leading-relaxed text-zinc-400">
+          <div className="rounded-lg bg-zinc-950 p-3.5 border border-zinc-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-zinc-200">Status Jembatan MT4/MT5:</span>
+              <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 font-bold text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                Endpoint Webhook Siap
+              </span>
+            </div>
+            <p>
+              Kirim tick harga real-time dari broker Anda (Exness, XM, IC Markets, dll) ke endpoint:
+            </p>
+            <div className="rounded bg-zinc-900 px-3 py-1.5 font-mono text-zinc-300 select-all border border-zinc-800">
+              POST /api/mt-bridge
+            </div>
+            <p className="text-[11px] text-zinc-500">
+              Format payload JSON: <code className="text-zinc-400">{`{ "broker": "NamaBroker", "quotes": { "XAUUSD": { "bid": 2938.50, "ask": 2938.85 } } }`}</code>
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* ----------------------------------------------------------------- */}
       {/* Data Settings                                                     */}
       {/* ----------------------------------------------------------------- */}
       <Section title="Sumber Data" icon={Database}>
         <Row label="Penyedia Data">
           <div className="text-right">
             <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/20">
-              Data Simulasi (Pengembangan)
+              Live Interbank &amp; Gold Spot (ECB + Binance)
             </span>
           </div>
         </Row>
         <p className="text-[11px] text-zinc-500">
-          Saat ini menggunakan data simulasi pasar forex. Hubungkan API key resmi di lingkungan produksi.
+          Data Emas (XAU/USD) dan kurs mata uang utama disinkronkan secara otomatis dari data pasar live interbank.
         </p>
 
         <Row label="API Key">
