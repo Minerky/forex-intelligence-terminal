@@ -163,9 +163,10 @@ export default function TimeSignalPage() {
   useEffect(() => {
     if (pairs.length === 0) return;
 
-    const initialSignals: TimeSignal[] = pairs.slice(0, 5).map((p, idx) => {
+    const initialSignals: TimeSignal[] = pairs.slice(0, 6).map((p, idx) => {
       const isJPY = p.symbol.includes('JPY');
-      const pip = isJPY ? 0.01 : 0.0001;
+      const isGold = p.symbol.includes('XAU');
+      const pip = isGold ? 0.1 : isJPY ? 0.01 : 0.0001;
       const isBuy = p.trend === 'Bullish' || p.rsi > 50;
       const action = isBuy ? 'BUY' : 'SELL';
       const entryPrice = p.price;
@@ -173,17 +174,17 @@ export default function TimeSignalPage() {
       // Scheduled seconds in the near future (e.g. 15s, 45s, 90s from now)
       const futureSec = (idx + 1) * 20;
 
-      const riskPips = 15;
-      const tp1Pips = 15;
-      const tp2Pips = 30;
-      const tp3Pips = 50;
+      const riskPips = isGold ? 30 : 15;
+      const tp1Pips = isGold ? 30 : 15;
+      const tp2Pips = isGold ? 60 : 30;
+      const tp3Pips = isGold ? 100 : 50;
 
       const tp1 = isBuy ? entryPrice + tp1Pips * pip : entryPrice - tp1Pips * pip;
       const tp2 = isBuy ? entryPrice + tp2Pips * pip : entryPrice - tp2Pips * pip;
       const tp3 = isBuy ? entryPrice + tp3Pips * pip : entryPrice - tp3Pips * pip;
       const cutLoss = isBuy ? entryPrice - riskPips * pip : entryPrice + riskPips * pip;
 
-      const d = isJPY ? 2 : 4;
+      const d = isJPY || isGold ? 2 : 4;
 
       return {
         id: `sig-${p.symbol}-${idx}`,
@@ -524,11 +525,13 @@ export default function TimeSignalPage() {
             const pairData = pairs.find((p) => p.symbol === sig.pair);
             const currentPrice = pairData ? pairData.price : sig.entryPrice;
             const isBuy = sig.action === 'BUY';
-            const priceDec = sig.pair.includes('JPY') ? 2 : 4;
+            const isGold = sig.pair.includes('XAU');
+            const priceDec = sig.pair.includes('JPY') || isGold ? 2 : 4;
+            const pipFactor = isGold ? 0.1 : sig.pair.includes('JPY') ? 0.01 : 0.0001;
 
             // Distance calculations
-            const pipsToTP1 = Math.abs(Number(((sig.tp1 - currentPrice) / (sig.pair.includes('JPY') ? 0.01 : 0.0001)).toFixed(1)));
-            const pipsToCL = Math.abs(Number(((currentPrice - sig.cutLoss) / (sig.pair.includes('JPY') ? 0.01 : 0.0001)).toFixed(1)));
+            const pipsToTP1 = Math.abs(Number(((sig.tp1 - currentPrice) / pipFactor).toFixed(1)));
+            const pipsToCL = Math.abs(Number(((currentPrice - sig.cutLoss) / pipFactor).toFixed(1)));
 
             return (
               <div

@@ -1,5 +1,5 @@
 // Currency and pair types
-export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'CHF' | 'AUD' | 'CAD' | 'NZD';
+export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'CHF' | 'AUD' | 'CAD' | 'NZD' | 'XAU';
 
 export interface CurrencyPair {
   symbol: string;

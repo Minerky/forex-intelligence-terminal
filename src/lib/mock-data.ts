@@ -20,6 +20,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const BASE_PRICES: Record<string, number> = {
+  'XAU/USD': 2938.50,
   'EUR/USD': 1.0850,
   'GBP/USD': 1.2650,
   'USD/JPY': 149.50,
@@ -34,7 +35,7 @@ export const BASE_PRICES: Record<string, number> = {
 
 // Pip size per pair (used for spread / simulation scale)
 const pipSize = (symbol: string): number =>
-  symbol.includes('JPY') ? 0.01 : 0.0001;
+  symbol.includes('XAU') ? 0.1 : symbol.includes('JPY') ? 0.01 : 0.0001;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -58,7 +59,7 @@ function roundTo(v: number, decimals: number): number {
 }
 
 function decimalsFor(symbol: string): number {
-  return symbol.includes('JPY') ? 2 : 4;
+  return symbol.includes('JPY') || symbol.includes('XAU') ? 2 : 4;
 }
 
 // ---------------------------------------------------------------------------
@@ -76,6 +77,7 @@ interface PairSeed {
 }
 
 const PAIR_SEEDS: PairSeed[] = [
+  { symbol: 'XAU/USD', base: 'XAU', quote: 'USD', price: 2938.50, rsi: 65, trend: 'Bullish', sentiment: 'Very Bullish' },
   { symbol: 'EUR/USD', base: 'EUR', quote: 'USD', price: 1.0850, rsi: 55, trend: 'Bullish', sentiment: 'Bullish' },
   { symbol: 'GBP/USD', base: 'GBP', quote: 'USD', price: 1.2650, rsi: 58, trend: 'Bullish', sentiment: 'Bullish' },
   { symbol: 'USD/JPY', base: 'USD', quote: 'JPY', price: 149.50, rsi: 62, trend: 'Bullish', sentiment: 'Neutral' },

@@ -18,7 +18,7 @@ function isSessionOpen(openUTC: number, closeUTC: number, hour: number): boolean
   return hour >= openUTC || hour < closeUTC;
 }
 
-const TICKER_PAIRS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'NZD/USD'];
+const TICKER_PAIRS = ['XAU/USD', 'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'NZD/USD'];
 
 export function Topbar() {
   const toggleSidebar = useForexStore((s) => s.toggleSidebar);
@@ -87,7 +87,7 @@ export function Topbar() {
             <span key={symbol} className="flex shrink-0 items-center gap-1 font-mono text-[11px]">
               <span className="text-zinc-500">{symbol}</span>
               <span className={up ? 'text-emerald-400' : 'text-red-400'}>
-                {p.price.toFixed(symbol.includes('JPY') ? 2 : 4)}
+                {p.price.toFixed(symbol.includes('JPY') || symbol.includes('XAU') ? 2 : 4)}
               </span>
               <span className={`${up ? 'text-emerald-500' : 'text-red-500'} text-[10px]`}>
                 {up ? '+' : ''}{p.changePercent.toFixed(2)}%

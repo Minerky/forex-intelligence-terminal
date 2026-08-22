@@ -32,22 +32,22 @@ function calculateRisk(config: {
 }): RiskCalculation & { pipValue: number; lotSizeStandard: number; lotSizeMini: number; lotSizeMicro: number; riskPips: number; rewardPips: number } {
   const { balance, riskPercent, entryPrice, stopLoss, takeProfit, pair } = config;
   const isJpy = pair.includes('JPY');
-  const pipSize = isJpy ? 0.01 : 0.0001;
+  const isGold = pair.includes('XAU');
+  const pipSize = isGold ? 0.1 : isJpy ? 0.01 : 0.0001;
 
   const riskAmount = (balance * riskPercent) / 100;
   const riskPips = Math.abs(entryPrice - stopLoss) / pipSize;
   const rewardPips = Math.abs(takeProfit - entryPrice) / pipSize;
 
-  // Pip value per standard lot (100,000 units)
-  // For XXX/USD: pip value = 100000 * pipSize = $10 (or $1000 for JPY)
-  // For USD/XXX: pip value = 100000 * pipSize / price
-  let pipValuePerLot: number;
-  if (pair.endsWith('/USD')) {
+  // Pip value per standard lot
+  let pipValuePerLot = 10; // default $10 per pip for 1.00 lot
+  if (isGold) {
+    pipValuePerLot = 10; // Gold 1.00 lot = 100 oz, $0.10 move = $10.00
+  } else if (pair.endsWith('/USD')) {
     pipValuePerLot = 100000 * pipSize;
   } else if (pair.startsWith('USD/')) {
     pipValuePerLot = (100000 * pipSize) / entryPrice;
   } else {
-    // Cross pairs: approximate as pipSize * 100000 (simplified)
     pipValuePerLot = 100000 * pipSize;
   }
 
