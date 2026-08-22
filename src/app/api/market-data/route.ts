@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 // ---------------------------------------------------------------------------
 // Real-Time TradingView Live Market Data Provider
 // ---------------------------------------------------------------------------

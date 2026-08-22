@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 // ---------------------------------------------------------------------------
 // In-memory cache for MT4/MT5 Live Bridge Data
 // ---------------------------------------------------------------------------
