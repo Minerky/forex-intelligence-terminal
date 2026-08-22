@@ -22,6 +22,9 @@ import {
   Target,
   ShieldAlert,
   ArrowRight,
+  Copy,
+  Check,
+  Send,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -104,6 +107,14 @@ export default function TimeSignalPage() {
   const [timezoneOffset, setTimezoneOffset] = useState<number>(7); // Default WIB (UTC+7)
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [lastAlertMessage, setLastAlertMessage] = useState<{ text: string; type: 'TP' | 'CL' | 'ENTRY'; time: string } | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  function copySignalToClipboard(sig: TimeSignal) {
+    const text = `🔔 [SINYAL FOREX PRO - ${sig.pair}]\n• Tindakan: ${sig.action} @ ${sig.entryPrice}\n• Take Profit 1: ${sig.tp1} (+${sig.riskPips} pips)\n• Take Profit 2: ${sig.tp2} (+${sig.rewardPips} pips)\n• Cut Loss (SL): ${sig.cutLoss} (-${sig.riskPips} pips)\n• Analisis: ${sig.reason}`;
+    navigator.clipboard.writeText(text);
+    setCopiedId(sig.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  }
 
   // Active Signals State
   const [signals, setSignals] = useState<TimeSignal[]>([]);
@@ -665,21 +676,32 @@ export default function TimeSignalPage() {
                 </div>
 
                 {/* Bottom Trigger Action Buttons */}
-                <div className="mt-4 pt-3 border-t border-zinc-800 flex items-center gap-2">
-                  {sig.status === 'PENDING' ? (
+                <div className="mt-4 pt-3 border-t border-zinc-800 space-y-2">
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={() => {
-                        setSignals((prev) =>
-                          prev.map((s) => (s.id === sig.id ? { ...s, status: 'ACTIVE', targetSecondsLeft: 0 } : s))
-                        );
-                        if (soundEnabled) playBeep('ENTRY');
-                      }}
-                      className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500 transition-colors"
+                      onClick={() => copySignalToClipboard(sig)}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800 px-2.5 py-1.5 text-[11px] font-bold text-zinc-300 hover:bg-zinc-700 hover:text-white transition-colors"
                     >
-                      <Play className="h-3 w-3" /> Eksekusi Sekarang (Bypass Waktu)
+                      {copiedId === sig.id ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                      {copiedId === sig.id ? 'Tersalin!' : 'Salin Format MT5'}
                     </button>
-                  ) : (
-                    <div className="w-full flex items-center justify-between text-xs font-mono">
+                    {sig.status === 'PENDING' && (
+                      <button
+                        onClick={() => {
+                          setSignals((prev) =>
+                            prev.map((s) => (s.id === sig.id ? { ...s, status: 'ACTIVE', targetSecondsLeft: 0 } : s))
+                          );
+                          if (soundEnabled) playBeep('ENTRY');
+                        }}
+                        className="flex items-center justify-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-blue-500 transition-colors"
+                      >
+                        <Play className="h-3 w-3" /> Eksekusi
+                      </button>
+                    )}
+                  </div>
+
+                  {sig.status !== 'PENDING' && (
+                    <div className="w-full flex items-center justify-between text-[11px] font-mono pt-1">
                       <span className="text-zinc-500">Jarak TP1: <strong className="text-emerald-400">{pipsToTP1} pips</strong></span>
                       <span className="text-zinc-500">Jarak CL: <strong className="text-red-400">{pipsToCL} pips</strong></span>
                     </div>

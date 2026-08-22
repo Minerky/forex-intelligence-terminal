@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useForexStore } from '@/lib/store';
 import { generateTimeframeAnalysis } from '@/lib/mock-data';
 import type { CurrencyPair, TechnicalIndicators } from '@/lib/types';
+import { TradingViewChart } from '@/components/tradingview-chart';
 import {
   Shield,
   LineChart,
@@ -315,23 +316,43 @@ export default function TechnicalAnalysisPage() {
       </div>
 
       {/* Pair selector */}
-      <div className="flex items-center gap-4">
-        <select
-          value={pair.symbol}
-          onChange={(e) => setSelectedPair(e.target.value)}
-          className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-medium text-zinc-100 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-        >
-          {pairs.map((p) => (
-            <option key={p.symbol} value={p.symbol}>{p.symbol}</option>
-          ))}
-        </select>
-        <div className="font-mono text-xl font-bold text-zinc-100">
-          {pair.price.toFixed(d)}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <select
+            value={pair.symbol}
+            onChange={(e) => setSelectedPair(e.target.value)}
+            className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-medium text-zinc-100 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
+          >
+            {pairs.map((p) => (
+              <option key={p.symbol} value={p.symbol}>{p.symbol}</option>
+            ))}
+          </select>
+          <div className="font-mono text-xl font-bold text-zinc-100">
+            {pair.price.toFixed(d)}
+          </div>
+          <span className={`font-mono text-sm ${pair.changePercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            {pair.changePercent >= 0 ? '+' : ''}{pair.changePercent.toFixed(2)}%
+          </span>
         </div>
-        <span className={`font-mono text-sm ${pair.changePercent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-          {pair.changePercent >= 0 ? '+' : ''}{pair.changePercent.toFixed(2)}%
+
+        <span className="text-xs text-zinc-400 font-mono bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          TradingView Live Candlestick Sync
         </span>
       </div>
+
+      {/* ================================================================= */}
+      {/* Live TradingView Candlestick Chart                                */}
+      {/* ================================================================= */}
+      <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-3 sm:p-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-zinc-300">
+            <LineChart className="h-4 w-4 text-emerald-400" /> Chart Candlestick Interaktif ({pair.symbol})
+          </h2>
+          <span className="text-[11px] text-zinc-500">M1 • M5 • M15 • H1 • H4 • D1 dengan Alat Gambar &amp; Indikator</span>
+        </div>
+        <TradingViewChart symbol={pair.symbol} height={480} />
+      </section>
 
       {/* ================================================================= */}
       {/* Section A: Technical Indicators                                   */}

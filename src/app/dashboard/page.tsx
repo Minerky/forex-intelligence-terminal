@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { useForexStore } from '@/lib/store';
 import {
   TrendingUp,
@@ -119,12 +120,45 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Pro Live badge */}
-      <div className="flex items-center gap-2">
-        <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/20">
-          <Shield className="h-3 w-3" />
-          PRO TRADING TERMINAL
-        </span>
-        <span className="text-xs text-zinc-500 font-mono">Dasbor Intelijen Pasar</span>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/20">
+            <Shield className="h-3 w-3" />
+            PRO TRADING TERMINAL
+          </span>
+          <span className="text-xs text-zinc-500 font-mono">Dasbor Intelijen Pasar &amp; Eksekusi</span>
+        </div>
+
+        {/* DXY Compass Mini Widget */}
+        <div className="flex items-center gap-2 rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-1.5 font-mono text-xs">
+          <span className="text-zinc-400 font-bold">USD Index (DXY):</span>
+          <span className="text-emerald-400 font-bold">104.25</span>
+          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-400/10 px-1 rounded">+0.18% (Bullish DXY)</span>
+        </div>
+      </div>
+
+      {/* Pre-News Lockout & Risk Guardian Banner */}
+      <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 p-4 text-xs text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+            <Shield className="h-5 w-5 text-amber-400" />
+          </div>
+          <div>
+            <div className="font-bold text-amber-300 flex items-center gap-2">
+              <span>Risk Guardian: Perhatian Rilis Berita High-Impact</span>
+              <span className="rounded bg-amber-400/20 px-1.5 py-0.2 text-[10px] text-amber-300">Lockout Mode</span>
+            </div>
+            <p className="text-[11px] text-amber-200/80 mt-0.5">
+              Acara <strong>USD Core CPI / FOMC</strong> terjadwal dalam pekan ini. Disarankan menghindari entry 15 menit sebelum dan sesudah rilis berita besar untuk mencegah lonjakan spread &amp; slippage broker.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/calendar"
+          className="shrink-0 self-start sm:self-center rounded-lg bg-amber-500 px-3 py-1.5 font-bold text-zinc-950 hover:bg-amber-400 transition"
+        >
+          Lihat Kalender Lengkap
+        </Link>
       </div>
 
       {/* ----------------------------------------------------------------- */}

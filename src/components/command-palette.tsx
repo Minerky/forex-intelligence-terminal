@@ -27,6 +27,7 @@ import {
   MessageSquare,
   RefreshCw,
   Timer,
+  Boxes,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -78,7 +79,8 @@ export function CommandPalette() {
     { id: 'nav-market', icon: TrendingUp, label: 'Pasar', description: 'Buka tampilan Pasar', action: () => nav('/market'), keywords: 'market pasar pairs live' },
     { id: 'nav-calendar', icon: Calendar, label: 'Kalender Ekonomi', description: 'Buka Kalender Ekonomi', action: () => nav('/calendar'), keywords: 'calendar kalender events ekonomi' },
     { id: 'nav-news', icon: Newspaper, label: 'Berita Langsung', description: 'Buka Berita Terkini', action: () => nav('/news'), keywords: 'news berita feed headlines' },
-    { id: 'nav-technical', icon: LineChart, label: 'Analisis Teknikal', description: 'Buka Analisis Teknikal', action: () => nav('/technical'), keywords: 'technical teknikal analysis chart indikator' },
+    { id: 'nav-technical', icon: LineChart, label: 'Analisis Teknikal', description: 'Buka Analisis Teknikal & Candlestick', action: () => nav('/technical'), keywords: 'technical teknikal analysis chart indikator' },
+    { id: 'nav-smc', icon: Boxes, label: 'Smart Money (SMC)', description: 'Buka Analisis Order Block & FVG', action: () => nav('/smc'), keywords: 'smc smart money order block fvg liquidity' },
     { id: 'nav-fundamental', icon: BookOpen, label: 'Analisis Fundamental', description: 'Buka Analisis Fundamental', action: () => nav('/fundamental'), keywords: 'fundamental analysis bank sentral suku bunga' },
     { id: 'nav-sentiment', icon: Users, label: 'Sentimen', description: 'Buka Sentimen Pasar', action: () => nav('/sentiment'), keywords: 'sentiment sentimen crowd risk on off' },
     { id: 'nav-strength', icon: Gauge, label: 'Kekuatan Mata Uang', description: 'Buka Currency Strength Meter', action: () => nav('/strength'), keywords: 'strength kekuatan mata uang currency meter' },

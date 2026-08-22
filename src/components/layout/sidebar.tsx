@@ -28,6 +28,7 @@ import {
   ChevronRight,
   AlertTriangle,
   Timer,
+  Boxes,
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -44,6 +45,7 @@ const NAV_SECTIONS = [
     label: 'Analisis',
     items: [
       { href: '/technical', label: 'Analisis Teknikal', icon: LineChart },
+      { href: '/smc', label: 'Smart Money (SMC)', icon: Boxes },
       { href: '/fundamental', label: 'Analisis Fundamental', icon: BookOpen },
       { href: '/sentiment', label: 'Sentimen', icon: Users },
       { href: '/strength', label: 'Kekuatan Mata Uang', icon: Gauge },

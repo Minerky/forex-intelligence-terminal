@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useForexStore } from '@/lib/store';
 import type { CurrencyPair } from '@/lib/types';
-import { Search, Shield, ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react';
+import { Search, Shield, ArrowUpDown, ChevronUp, ChevronDown, LineChart } from 'lucide-react';
+import { TradingViewChart } from '@/components/tradingview-chart';
 
 // ---------------------------------------------------------------------------
 // Column definitions
@@ -196,16 +197,32 @@ export default function MarketPage() {
         <span className="text-xs text-zinc-500 font-mono">Tabel Harga Pasar Langsung</span>
       </div>
 
+      {/* Live TradingView Candlestick Chart */}
+      <section className="rounded-xl border border-zinc-800 bg-zinc-900 p-3 sm:p-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-zinc-300">
+            <LineChart className="h-4 w-4 text-emerald-400" /> Chart TradingView Live: <span className="text-emerald-400 font-mono">{selectedPair}</span>
+          </h2>
+          <span className="text-[11px] text-zinc-500">Klik baris tabel di bawah untuk mengganti chart pasangan</span>
+        </div>
+        <TradingViewChart symbol={selectedPair} height={420} />
+      </section>
+
       {/* Search */}
-      <div className="relative max-w-xs">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-        <input
-          type="text"
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative max-w-xs flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+          <input
+            type="text"
             placeholder="Cari pasangan..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded border border-zinc-700 bg-zinc-900 py-1.5 pl-9 pr-3 text-sm text-zinc-200 placeholder-zinc-500 outline-none focus:border-zinc-600"
-        />
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded border border-zinc-700 bg-zinc-900 py-1.5 pl-9 pr-3 text-sm text-zinc-200 placeholder-zinc-500 outline-none focus:border-zinc-600 font-mono"
+          />
+        </div>
+        <span className="text-xs text-zinc-500 font-mono">
+          Total: <strong className="text-zinc-200">{filtered.length}</strong> Instrumen Pasar
+        </span>
       </div>
 
       {/* Table */}
