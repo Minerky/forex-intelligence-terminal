@@ -94,13 +94,13 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-4">
-      {/* Dev badge */}
+      {/* Pro Live badge */}
       <div className="flex items-center gap-2">
-        <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400 ring-1 ring-amber-500/20">
+        <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/20">
           <Shield className="h-3 w-3" />
-          DATA PENGEMBANGAN
+          PRO TRADING TERMINAL
         </span>
-        <span className="text-xs text-zinc-500 font-mono">Kalender Ekonomi</span>
+        <span className="text-xs text-zinc-500 font-mono">Kalender Berita Ekonomi</span>
       </div>
 
       {/* ----------------------------------------------------------------- */}

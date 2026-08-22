@@ -14,7 +14,7 @@ interface Message {
 const WELCOME: Message = {
   id: 'welcome',
   role: 'ai',
-  text: "Halo! Saya Asisten AI Forex Anda. Tanyakan kondisi pasar, analisis pasangan mata uang, atau strategi trading. Catatan: Data yang digunakan adalah data simulasi pengembangan.",
+  text: "Halo! Saya Asisten AI Forex Profesional Anda. Siap menganalisis kondisi pasar real-time, konfirmasi sinyal entry/exit, dan manajemen risiko trading Anda.",
   timestamp: Date.now(),
 };
 

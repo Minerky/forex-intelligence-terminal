@@ -211,13 +211,13 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      {/* Dev badge */}
+      {/* Header badge */}
       <div className="flex items-center gap-2">
-        <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400 ring-1 ring-amber-500/20">
+        <span className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-500/20">
           <Shield className="h-3 w-3" />
-          DATA PENGEMBANGAN
+          PRO TRADING TERMINAL
         </span>
-        <span className="text-xs text-zinc-500 font-mono">Pengaturan</span>
+        <span className="text-xs text-zinc-500 font-mono">Pengaturan Sistem</span>
       </div>
 
       {/* ----------------------------------------------------------------- */}
@@ -398,28 +398,32 @@ export default function SettingsPage() {
       {/* ----------------------------------------------------------------- */}
       {/* About                                                             */}
       {/* ----------------------------------------------------------------- */}
-      <Section title="About" icon={Info}>
+      <Section title="Informasi Sistem" icon={Info}>
         <div className="space-y-2 text-sm text-zinc-400">
           <div className="flex justify-between">
-            <span>Version</span>
-            <span className="font-mono text-zinc-300">1.0.0-dev</span>
+            <span>Versi Aplikasi</span>
+            <span className="font-mono font-bold text-emerald-400">v1.0.0 (Production Live)</span>
           </div>
           <div className="flex justify-between">
-            <span>Application</span>
-            <span className="text-zinc-300">Forex Intelligence Terminal</span>
+            <span>Platform</span>
+            <span className="text-zinc-200 font-semibold">Forex Intelligence Terminal (PRO)</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Penyedia Data</span>
+            <span className="text-emerald-400">TradingView Live Scanner &amp; MT4/MT5 Bridge</span>
           </div>
         </div>
 
-        <div className="mt-3 rounded border border-amber-500/20 bg-amber-500/5 px-3 py-2">
-          <p className="flex items-center gap-1.5 text-xs font-medium text-amber-400">
-            <AlertTriangle className="h-3 w-3" />
-            Using development data. Not for real trading.
+        <div className="mt-3 rounded border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+            <Shield className="h-3.5 w-3.5" />
+            Mode Trading Aktif — Siap digunakan dengan Akun Standard &amp; Akun Cent.
           </p>
         </div>
 
-        <div className="mt-3 space-y-1 text-[11px] text-zinc-600">
-          <p>Built with Next.js, React, Zustand, Tailwind CSS, Recharts, Lucide Icons</p>
-          <p>Market data is simulated for development and demonstration purposes.</p>
+        <div className="mt-3 space-y-1 text-[11px] text-zinc-500">
+          <p>Ditenagai oleh TradingView Real-Time Data, Next.js App Router, Zustand, dan Recharts.</p>
+          <p>Disinkronkan otomatis dengan feed likuiditas pasar interbank global dan Emas Spot.</p>
         </div>
       </Section>
     </div>

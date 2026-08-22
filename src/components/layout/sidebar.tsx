@@ -152,16 +152,16 @@ export function Sidebar() {
           ))}
         </nav>
 
-        {/* Dev data badge */}
+        {/* Live Status Badge */}
         <div className="border-t border-zinc-800 p-2">
           <div
-            className={`data-label flex items-center gap-1.5 rounded bg-amber-950/40 text-amber-500 ${
+            className={`data-label flex items-center gap-1.5 rounded bg-emerald-950/50 text-emerald-400 border border-emerald-500/20 ${
               sidebarOpen ? 'px-2.5 py-1.5 text-[10px]' : 'justify-center px-1 py-1.5 text-[9px]'
             }`}
           >
-            <AlertTriangle size={12} className="shrink-0" />
-            <span className={`font-medium uppercase tracking-wide ${!sidebarOpen && 'lg:hidden'}`}>
-              Data Pengembangan
+            <ShieldCheck size={12} className="shrink-0 text-emerald-400" />
+            <span className={`font-semibold uppercase tracking-wider ${!sidebarOpen && 'lg:hidden'}`}>
+              Terminal Live (PRO)
             </span>
           </div>
         </div>
