@@ -170,124 +170,146 @@ export default function ActionPlanPage() {
       {/* STEP-BY-STEP ACTIONABLE SETUPS FOR TODAY                          */}
       {/* ----------------------------------------------------------------- */}
       <div className="space-y-4">
-        <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-zinc-200">
-          <Zap className="h-4 w-4 text-yellow-400" /> Rekomendasi Sinyal Eksekusi Terbaik Hari Ini
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-zinc-200">
+            <Zap className="h-4 w-4 text-yellow-400" /> Rekomendasi Sinyal Eksekusi Terbaik Hari Ini
+          </h2>
+          {!marketOpen && (
+            <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-400 border border-amber-500/20">
+              PASAR TUTUP — TIDAK ADA SINYAL AKTIF
+            </span>
+          )}
+        </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {topSetups.map((s, idx) => {
-            const isBuy = s.direction === 'BUY';
-            const isWait = s.direction === 'WAIT';
+        {!marketOpen ? (
+          <div className="rounded-xl border border-dashed border-zinc-800 bg-zinc-900/50 p-8 text-center space-y-3">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 text-amber-400">
+              <Shield className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-zinc-200">Tidak Ada Rencana Sinyal (Pasar Libur Akhir Pekan)</h3>
+              <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
+                Pasar Forex &amp; Emas saat ini sedang tutup. Mesin AI tidak merilis sinyal eksekusi baru selama pasar libur demi menjaga keamanan modal Anda. Sinyal baru akan otomatis dianalisis dan dirilis saat pasar buka kembali <strong>Senin Pagi (05:00 WIB)</strong>.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2">
+            {topSetups.map((s, idx) => {
+              const isBuy = s.direction === 'BUY';
+              const isWait = s.direction === 'WAIT';
 
-            return (
-              <div
-                key={s.id}
-                className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 flex flex-col justify-between space-y-4 shadow-lg"
-              >
-                <div>
-                  {/* Setup Badge */}
-                  <div className="flex items-center justify-between mb-3 border-b border-zinc-800 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-lg font-bold text-zinc-100">{s.pair}</span>
-                      <span className="rounded bg-zinc-800 px-2 py-0.5 text-[10px] font-bold text-zinc-400">
-                        Opsi #{idx + 1}
-                      </span>
-                    </div>
-
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-black tracking-wider ${
-                        isBuy
-                          ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40'
-                          : isWait
-                          ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/40'
-                          : 'bg-red-500/20 text-red-400 ring-1 ring-red-500/40'
-                      }`}
-                    >
-                      {isBuy ? <TrendingUp className="h-3 w-3" /> : isWait ? <Shield className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                      {s.direction}
-                    </span>
-                  </div>
-
-                  {/* 3 Step Instruction Guide */}
-                  <div className="space-y-2.5 text-xs">
-                    {/* Step 1 */}
-                    <div className="rounded-lg bg-zinc-950 p-2.5 border border-zinc-800 flex items-start gap-2.5">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-[11px] font-bold text-blue-400">
-                        1
-                      </span>
-                      <div>
-                        <span className="font-semibold text-zinc-300 block">Tindakan Order di MT4/MT5:</span>
-                        <p className="text-zinc-400 text-[11px]">
-                          Buka order <strong>{s.direction}</strong> pada pasangan <strong>{s.pair}</strong> di harga masuk sekitar <code className="text-zinc-200 font-bold">{s.entry}</code>.
-                        </p>
+              return (
+                <div
+                  key={s.id}
+                  className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 flex flex-col justify-between space-y-4 shadow-lg"
+                >
+                  <div>
+                    {/* Setup Badge */}
+                    <div className="flex items-center justify-between mb-3 border-b border-zinc-800 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-lg font-bold text-zinc-100">{s.pair}</span>
+                        <span className="rounded bg-zinc-800 px-2 py-0.5 text-[10px] font-bold text-zinc-400">
+                          Opsi #{idx + 1}
+                        </span>
                       </div>
+
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-black tracking-wider ${
+                          isBuy
+                            ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40'
+                            : isWait
+                            ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/40'
+                            : 'bg-red-500/20 text-red-400 ring-1 ring-red-500/40'
+                        }`}
+                      >
+                        {isBuy ? <TrendingUp className="h-3 w-3" /> : isWait ? <Shield className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                        {s.direction}
+                      </span>
                     </div>
 
-                    {/* Step 2 */}
-                    <div className="rounded-lg bg-zinc-950 p-2.5 border border-zinc-800 flex items-start gap-2.5">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-[11px] font-bold text-emerald-400">
-                        2
-                      </span>
-                      <div className="w-full">
-                        <span className="font-semibold text-zinc-300 block">Pasang Level TP &amp; SL Wajib:</span>
-                        <div className="grid grid-cols-2 gap-2 mt-1 font-mono text-[11px]">
-                          <div className="rounded bg-emerald-950/40 p-1.5 border border-emerald-500/20">
-                            <span className="text-emerald-400 block text-[9px] font-sans uppercase">Take Profit (TP)</span>
-                            <strong className="text-emerald-300">{s.takeProfit}</strong>
+                    {/* 3 Step Instruction Guide */}
+                    <div className="space-y-2.5 text-xs">
+                      {/* Step 1 */}
+                      <div className="rounded-lg bg-zinc-950 p-2.5 border border-zinc-800 flex items-start gap-2.5">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-[11px] font-bold text-blue-400">
+                          1
+                        </span>
+                        <div>
+                          <span className="font-semibold text-zinc-300 block">Tindakan Order di MT4/MT5:</span>
+                          <p className="text-zinc-400 text-[11px]">
+                            Buka order <strong>{s.direction}</strong> pada pasangan <strong>{s.pair}</strong> di harga masuk sekitar <code className="text-zinc-200 font-bold">{s.entry}</code>.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Step 2 */}
+                      <div className="rounded-lg bg-zinc-950 p-2.5 border border-zinc-800 flex items-start gap-2.5">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-[11px] font-bold text-emerald-400">
+                          2
+                        </span>
+                        <div className="w-full">
+                          <span className="font-semibold text-zinc-300 block">Pasang Level TP &amp; SL Wajib:</span>
+                          <div className="grid grid-cols-2 gap-2 mt-1 font-mono text-[11px]">
+                            <div className="rounded bg-emerald-950/40 p-1.5 border border-emerald-500/20">
+                              <span className="text-emerald-400 block text-[9px] font-sans uppercase">Take Profit (TP)</span>
+                              <strong className="text-emerald-300">{s.takeProfit}</strong>
+                            </div>
+                            <div className="rounded bg-red-950/40 p-1.5 border border-red-500/20">
+                              <span className="text-red-400 block text-[9px] font-sans uppercase">Cut Loss (SL)</span>
+                              <strong className="text-red-300">{s.stopLoss}</strong>
+                            </div>
                           </div>
-                          <div className="rounded bg-red-950/40 p-1.5 border border-red-500/20">
-                            <span className="text-red-400 block text-[9px] font-sans uppercase">Cut Loss (SL)</span>
-                            <strong className="text-red-300">{s.stopLoss}</strong>
-                          </div>
+                        </div>
+                      </div>
+
+                      {/* Step 3 */}
+                      <div className="rounded-lg bg-zinc-950 p-2.5 border border-zinc-800 flex items-start gap-2.5">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-500/20 text-[11px] font-bold text-purple-400">
+                          3
+                        </span>
+                        <div>
+                          <span className="font-semibold text-zinc-300 block">Ukuran Lot Aman:</span>
+                          <p className="text-zinc-400 text-[11px]">
+                            Gunakan ukuran lot terkecil <strong>0.01 Lot</strong> (atau 0.10 di Akun Cent) agar risiko kerugian maksimal hanya $1–$2.
+                          </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Step 3 */}
-                    <div className="rounded-lg bg-zinc-950 p-2.5 border border-zinc-800 flex items-start gap-2.5">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-500/20 text-[11px] font-bold text-purple-400">
-                        3
-                      </span>
-                      <div>
-                        <span className="font-semibold text-zinc-300 block">Ukuran Lot Aman:</span>
-                        <p className="text-zinc-400 text-[11px]">
-                          Gunakan ukuran lot terkecil <strong>0.01 Lot</strong> (atau 0.10 di Akun Cent) agar risiko kerugian maksimal hanya $1–$2.
-                        </p>
-                      </div>
+                    {/* AI Reasoning */}
+                    <p className="mt-3 text-[11px] text-zinc-500 italic">
+                      Analisis AI: {s.reasoning}
+                    </p>
+                  </div>
+
+                  {/* Bottom Buttons: Copy & Send Telegram */}
+                  <div className="space-y-2 pt-2 border-t border-zinc-800">
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => handleCopy(s)}
+                        className="flex items-center justify-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800 py-2 text-xs font-semibold text-zinc-200 hover:bg-zinc-700 hover:text-white transition"
+                      >
+                        {copiedId === s.id ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                        {copiedId === s.id ? 'Tersalin!' : 'Salin Instruksi'}
+                      </button>
+
+                      <button
+                        onClick={() => handleSendTelegram(s)}
+                        disabled={telegramSending}
+                        className="flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 py-2 text-xs font-bold text-white hover:bg-blue-500 transition disabled:opacity-50"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                        Kirim ke Telegram HP
+                      </button>
                     </div>
                   </div>
-
-                  {/* AI Reasoning */}
-                  <p className="mt-3 text-[11px] text-zinc-500 italic">
-                    Analisis AI: {s.reasoning}
-                  </p>
                 </div>
-
-                {/* Bottom Buttons: Copy & Send Telegram */}
-                <div className="space-y-2 pt-2 border-t border-zinc-800">
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => handleCopy(s)}
-                      className="flex items-center justify-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800 py-2 text-xs font-semibold text-zinc-200 hover:bg-zinc-700 hover:text-white transition"
-                    >
-                      {copiedId === s.id ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-                      {copiedId === s.id ? 'Tersalin!' : 'Salin Instruksi'}
-                    </button>
-
-                    <button
-                      onClick={() => handleSendTelegram(s)}
-                      disabled={telegramSending}
-                      className="flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 py-2 text-xs font-bold text-white hover:bg-blue-500 transition disabled:opacity-50"
-                    >
-                      <Send className="h-3.5 w-3.5" />
-                      Kirim ke Telegram HP
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
       </div>
 
       {/* ----------------------------------------------------------------- */}
