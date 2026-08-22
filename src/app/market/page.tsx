@@ -221,7 +221,7 @@ export default function MarketPage() {
           />
         </div>
         <span className="text-xs text-zinc-500 font-mono">
-          Total: <strong className="text-zinc-200">{filtered.length}</strong> Instrumen Pasar
+          Total: <strong className="text-zinc-200">{sorted.length}</strong> Instrumen Pasar
         </span>
       </div>
 
