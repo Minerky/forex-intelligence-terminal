@@ -1,0 +1,30 @@
+name: 24/7 Telegram Auto-Signal Scanner
+
+on:
+  schedule:
+    # Berjalan otomatis setiap 5 menit (24 jam nonstop gratis via GitHub Actions)
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Memungkinkan tombol 'Run manual' di tab Actions
+
+jobs:
+  scan-and-alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Real-Time Signal Scanner
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+        run: |
+          node scripts/telegram-autobot.mjs &
+          BOT_PID=$!
+          echo "Bot running with PID $BOT_PID. Scanning for signals..."
+          sleep 45
+          kill $BOT_PID || true
