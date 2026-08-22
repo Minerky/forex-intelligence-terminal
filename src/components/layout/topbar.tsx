@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useForexStore } from '@/lib/store';
 import { Menu, Command, Sparkles, Sliders } from 'lucide-react';
 
@@ -73,10 +74,19 @@ export function Topbar() {
         <Menu size={16} />
       </button>
 
-      {/* Branding */}
-      <span className="hidden whitespace-nowrap text-xs font-bold tracking-wide text-emerald-400 sm:block">
-        GANDASULI SINYAL
-      </span>
+      {/* Branding with Logo */}
+      <div className="flex items-center gap-2">
+        <Image
+          src="/gandasuli.jpg"
+          alt="Gandasuli Sinyal Logo"
+          width={28}
+          height={28}
+          className="rounded-full border border-emerald-500/30 object-cover"
+        />
+        <span className="hidden whitespace-nowrap text-xs font-bold tracking-wide text-emerald-400 sm:block">
+          GANDASULI SINYAL
+        </span>
+      </div>
 
       {/* Session indicators */}
       <div className="hidden items-center gap-2 border-l border-zinc-800 pl-3 md:flex">

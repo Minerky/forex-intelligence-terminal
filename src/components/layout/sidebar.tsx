@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useForexStore } from '@/lib/store';
 import {
@@ -133,9 +134,18 @@ export function Sidebar() {
       >
         {/* Collapse toggle */}
         <div className="flex h-12 items-center justify-between border-b border-zinc-800 px-3">
-          <span className="text-xs font-bold text-zinc-200 tracking-wider lg:hidden">
-            MENU TERMINAL
-          </span>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/gandasuli.jpg"
+              alt="Logo"
+              width={24}
+              height={24}
+              className="rounded-full border border-emerald-500/40 object-cover shrink-0"
+            />
+            <span className={`text-xs font-bold text-emerald-400 tracking-wider ${!sidebarOpen && 'lg:hidden'}`}>
+              GANDASULI
+            </span>
+          </div>
           <button
             onClick={toggleSidebar}
             className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-white ml-auto"
